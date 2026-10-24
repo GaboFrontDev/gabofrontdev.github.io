@@ -390,6 +390,53 @@ body.awake .hero{opacity:1;transform:none}
   .bay-text{width:86vw;padding:0 7vw}
 }
 
+/* ---- High scores machine + leaderboard ---- */
+.hs-mini{display:grid;grid-template-columns:auto auto;gap:3px 12px;font-family:var(--pixel);font-size:10px;letter-spacing:.08em}
+.hs-mini i{font-style:normal;color:var(--amber)}
+.hs-mini b{font-weight:400;color:#fff;text-align:right}
+.hs-mini b:nth-of-type(1){color:var(--neon)}
+#scores{position:fixed;inset:0;z-index:71;overflow:auto;padding:16px;background:rgba(5,4,8,.9);display:grid;place-items:center}
+.hs-title{margin:0 0 20px;font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(54px,8vw,104px);line-height:.85;color:#fff}
+.hs-title em{font-style:normal;font-stretch:125%;font-weight:800;font-size:.55em;color:var(--amber);text-shadow:0 0 22px rgba(255,181,71,.5);margin-left:.15em}
+.hs-table{border-top:1px dashed rgba(94,242,214,.35)}
+.hs-row{display:grid;grid-template-columns:70px 150px 1fr 150px 70px;gap:14px;align-items:center;padding:12px 10px;
+  border-bottom:1px dashed rgba(94,242,214,.35);font-family:var(--pixel);font-size:12px;letter-spacing:.1em;color:#d8fff3;
+  text-decoration:none;cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left}
+.hs-head{cursor:default;font-size:9px;color:var(--dim);letter-spacing:.2em;padding-top:8px;padding-bottom:8px}
+.hs-row:not(.hs-head):hover,.hs-row.sel{background:rgba(94,242,214,.08)}
+.hs-row.sel{box-shadow:inset 3px 0 0 var(--neon2)}
+.hs-score{font-family:var(--display);font-stretch:62%;font-weight:900;font-size:clamp(30px,3.6vw,44px);line-height:.9;letter-spacing:0;color:#fff}
+.hs-what{font-family:var(--text);font-weight:600;font-size:15px;letter-spacing:0;text-transform:none}
+.hs-ini{color:var(--amber)}
+.hs-row.r1 > span:first-child{color:var(--neon);animation:blink 1s steps(1) infinite}
+.hs-row.r1 .hs-score{color:var(--neon);text-shadow:0 0 18px rgba(255,90,165,.55)}
+.hs-row.r2 .hs-score{color:var(--neon2)}
+.hs-row.r3 .hs-score{color:var(--amber)}
+.hs-row.enter{animation:rowIn .35s steps(4) both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-14px)}}
+.hs-you{color:var(--dim)}
+.hs-you .hs-score{color:#3d4a46;-webkit-text-stroke:1px rgba(94,242,214,.5);animation:blink 1.2s steps(1) infinite}
+.hs-you .hs-what{color:#9fd6c8}
+.hs-you:hover .hs-what,.hs-you:focus-visible .hs-what{color:var(--amber)}
+.hs-you .hs-what::after{content:' — beat this score ▸';color:var(--amber)}
+.hs-replay{margin:18px 0 0;padding:16px 18px;border:1px solid rgba(94,242,214,.3);min-height:92px;background:rgba(0,0,0,.25)}
+.hs-replay .lv{font-family:var(--pixel);font-size:10px;letter-spacing:.2em;color:var(--amber)}
+.hs-replay p{margin:8px 0 0;font-family:var(--mono);font-size:14px;line-height:1.7;color:#d8fff3}
+.hs-sub{margin:28px 0 12px;font-family:var(--pixel);font-weight:400;font-size:11px;letter-spacing:.2em;color:var(--neon2)}
+.hs-badges{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.hs-badges li{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid rgba(255,181,71,.35);background:rgba(255,181,71,.05)}
+.hs-badges .ico{flex:0 0 34px;height:34px;display:grid;place-items:center;font-family:var(--pixel);font-size:16px;color:#16130f;background:var(--amber);
+  box-shadow:inset -3px -3px 0 rgba(0,0,0,.25),inset 3px 3px 0 rgba(255,255,255,.35)}
+.hs-badges b{display:block;font-family:var(--pixel);font-weight:400;font-size:10px;letter-spacing:.14em;color:var(--amber)}
+.hs-badges small{display:block;margin-top:3px;font-size:12.5px;color:#bfe9dd}
+@media (max-width:760px){
+  .hs-row{grid-template-columns:44px 1fr;gap:4px 12px;font-size:10px}
+  .hs-head{display:none}
+  .hs-row > span:nth-child(3),.hs-row > span:nth-child(4){grid-column:2}
+  .hs-row > span:nth-child(5){display:none}
+  .hs-row > span:first-child{grid-row:span 3;align-self:start;padding-top:6px}
+}
+
 /* ---- Continue? machine + lobby ---- */
 .cnt-num{font-family:var(--display);font-stretch:62%;font-weight:900;font-size:58px;line-height:.9;color:#fff;
   text-shadow:0 0 14px var(--neon2)}
@@ -760,7 +807,7 @@ footer a:hover{border-color:var(--neon)}
           <button class="cab" id="cab-who" data-cab="who" disabled aria-label="Who am I — open machine"></button>
         </div>
         <div class="bay">
-          <div class="cab off" data-cab="scores" aria-label="High scores — coming soon"></div>
+          <button class="cab" id="cab-scores" data-cab="scores" disabled aria-label="High scores — open machine"></button>
         </div>
         <div class="bay">
           <button class="cab" id="cab-cont" data-cab="cont" disabled aria-label="Continue — player 2, start a match with me"></button>
@@ -793,6 +840,35 @@ footer a:hover{border-color:var(--neon)}
     </footer>
   </div>
 </main>
+
+<!-- ======================= HIGH SCORES ======================= -->
+<div id="scores" hidden role="dialog" aria-modal="true" aria-label="High scores">
+  <div class="crt">
+    <div class="crt-inner">
+      <div class="hud">
+        <span class="credit">CREDIT 01</span>
+        <span>HALL OF FAME</span>
+        <button class="mt-back" id="hsBack" aria-label="Back to the hall">ESC ✕</button>
+      </div>
+      <section class="view">
+        <h2 class="hs-title">High <em>scores</em></h2>
+        <div class="hs-table" role="table" aria-label="Top scores">
+          <div class="hs-row hs-head" role="row">
+            <span role="columnheader">RANK</span><span role="columnheader">SCORE</span><span role="columnheader">RECORD</span><span role="columnheader">STAGE</span><span role="columnheader">NAME</span>
+          </div>
+          <div id="hsRows" role="rowgroup"></div>
+          <a class="hs-row hs-you" href="#" id="hsYou" role="row">
+            <span>4TH</span><span class="hs-score">???</span><span class="hs-what">Your project could go here</span><span>—</span><span class="hs-ini">YOU</span>
+          </a>
+        </div>
+        <div class="hs-replay" id="hsReplay" aria-live="polite"></div>
+        <h3 class="hs-sub">Achievements unlocked</h3>
+        <ul class="hs-badges" id="hsBadges"></ul>
+        <p class="hint">↑ ↓ PICK A RECORD · ESC BACK</p>
+      </section>
+    </div>
+  </div>
+</div>
 
 <!-- ======================= CONTINUE? — MULTIPLAYER LOBBY ======================= -->
 <div id="match" hidden role="dialog" aria-modal="true" aria-label="Continue: start a match">
@@ -1174,6 +1250,8 @@ function cabinetHTML(id, off){
     : `<span class="boot" hidden><span>BOOTING</span><span class="boot-bar"></span></span>
        <span class="attract" hidden>${id === 'snake'
           ? '<canvas class="lcd-mini"></canvas><span class="p">PRESS START</span>'
+          : id === 'scores'
+          ? '<span class="t">HIGH SCORES</span><span class="hs-mini"><i>1ST</i><b>4.5B</b><i>2ND</i><b>30K+</b><i>3RD</i><b>+40%</b></span><span class="p">PRESS START</span>'
           : id === 'cont'
           ? '<span class="t">CONTINUE?</span><span class="cnt-num">9</span><span class="p">PLAYER 2 PRESS START</span>'
           : '<canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span>'}</span>`;
@@ -1495,6 +1573,7 @@ async function enter(){
   // only working machines boot; the rest stay out of order
   document.querySelectorAll('.cab.off').forEach(c => c.classList.add('on-dim'));
   await bootCabinet(cabWho);
+  await bootCabinet(cabScores, 12);
   await bootCabinet(cabCont, 12);
   startContDemo();
   await bootCabinet(cabSnake, 10);
@@ -1676,6 +1755,84 @@ function SnakeGame(cv){
    ============================================================ */
 /* Paste your Calendly event link here, e.g. 'https://calendly.com/your-name/30min' */
 const CALENDLY_URL = 'https://calendly.com/soygabrielhinojoza/30min';
+
+/* ============================================================
+   HIGH SCORES
+   ============================================================ */
+const SCORES = [
+  { to:4.5,   fmt:v => v.toFixed(1) + 'B',                                   what:'Requests throttled per day',        stage:'Microsoft',
+    detail:'Request throttling handling 4.5 billion requests every single day.' },
+  { to:30000, fmt:v => Math.round(v).toLocaleString('en-US') + '+',          what:'Servers reached per deploy',        stage:'Microsoft',
+    detail:'Deployments rolled out across more than 30,000 servers.' },
+  { to:40,    fmt:v => '+' + Math.round(v) + '%',                            what:'Visit-to-purchase conversion',      stage:'Nordstrom.com',
+    detail:'Lifted the visit-to-purchase conversion rate by 40% on Nordstrom.com.' },
+];
+const BADGES = [
+  ['8+', 'VETERAN',         '8+ years in the game'],
+  ['★',  'SQUAD LEADER',    'Led teams of 3–5 engineers at Ellucian and Nordstrom.com'],
+  ['?',  'GATEKEEPER',      'Ran technical interviews and performance reviews'],
+  ['!',  'ON-CALL SURVIVOR','Production incidents at Microsoft and Dropbox'],
+  ['▲',  'BIG LEAGUES',     'Shipped at Microsoft and Dropbox scale'],
+];
+const RANKS = ['1ST', '2ND', '3RD'];
+const hsEl = $('#scores'), hsRows = $('#hsRows');
+const cabScores = $('#cab-scores');
+let hsOpen = false, hsSel = 0, hsTok = 0;
+hsRows.innerHTML = SCORES.map((r, i) => `
+  <button class="hs-row r${i + 1}" data-i="${i}" role="row">
+    <span>${RANKS[i]}</span><span class="hs-score" data-i="${i}">${r.fmt(0)}</span>
+    <span class="hs-what">${r.what}</span><span>${r.stage.toUpperCase()}</span><span class="hs-ini">GAB</span>
+  </button>`).join('');
+$('#hsBadges').innerHTML = BADGES.map(([ico, t, d]) => `<li><span class="ico" aria-hidden="true">${ico}</span><span><b>${t}</b><small>${d}</small></span></li>`).join('');
+function hsCount(el, r, dur){
+  const t0 = performance.now(), tok = hsTok;
+  (function f(t){
+    if (tok !== hsTok) return;
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = r.fmt(r.to * e);
+    if (k < 1) requestAnimationFrame(f);
+  })(t0);
+}
+function hsSelect(i, sound){
+  hsSel = (i + SCORES.length) % SCORES.length;
+  hsRows.querySelectorAll('.hs-row').forEach((row, k) => row.classList.toggle('sel', k === hsSel));
+  if (sound) sfx.blip();
+  const r = SCORES[hsSel];
+  $('#hsReplay').innerHTML = `<div class="lv">REPLAY · ${RANKS[hsSel]} · ${r.stage.toUpperCase()}</div><p></p>`;
+  typeText($('#hsReplay p'), r.detail);
+}
+async function openScores(){
+  hsOpen = true; hsEl.hidden = false; document.body.style.overflow = 'hidden';
+  const inner = $('.crt-inner', hsEl); inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = '';
+  sfx.start();
+  const tok = ++hsTok;
+  const rows = [...hsRows.querySelectorAll('.hs-row')];
+  rows.forEach((row, i) => { row.classList.remove('enter'); row.style.visibility = 'hidden'; $('.hs-score', row).textContent = SCORES[i].fmt(0); });
+  hsSelect(0, false);
+  await wait(450);
+  for (let i = 0; i < rows.length; i++) {
+    if (tok !== hsTok) return;
+    rows[i].style.visibility = ''; rows[i].classList.add('enter');
+    sfx.tick(i * 4); hsCount($('.hs-score', rows[i]), SCORES[i], RM ? 1 : 900);
+    await wait(260);
+  }
+  rows[0].focus();
+}
+function closeScores(){
+  hsOpen = false; hsTok++; hsEl.hidden = true; document.body.style.overflow = ''; sfx.back(); cabScores.focus();
+}
+hsRows.addEventListener('click', e => { const b = e.target.closest('.hs-row'); if (b) hsSelect(+b.dataset.i, true); });
+hsRows.addEventListener('focusin', e => { const b = e.target.closest('.hs-row'); if (b && +b.dataset.i !== hsSel) hsSelect(+b.dataset.i, false); });
+$('#hsYou').addEventListener('click', e => { e.preventDefault(); closeScores(); setTimeout(openMatch, 250); });
+$('#hsBack').addEventListener('click', closeScores);
+cabScores.addEventListener('click', openScores);
+function hsKey(e){
+  if (e.key === 'Escape') { e.preventDefault(); return closeScores(); }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault(); hsSelect(hsSel + (e.key === 'ArrowDown' ? 1 : -1), true);
+    hsRows.querySelectorAll('.hs-row')[hsSel].focus();
+  }
+}
 
 const cabCont = $('#cab-cont');
 if (CALENDLY_URL) $('#mtAlt').href = CALENDLY_URL;
@@ -1918,6 +2075,7 @@ document.addEventListener('keydown', e => {
   if (!started && (e.key === 'Enter' || e.key === ' ') && document.activeElement === document.body) {
     e.preventDefault(); enter(); return;
   }
+  if (hsOpen) return hsKey(e);
   if (mOpen) return matchKey(e);
   if (snOpen) return snKey(e);
   if (!gameOpen) return;
