@@ -1,0 +1,163 @@
+<!doctype html><html lang="es" data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#12171D;color:#E8ECF0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Espacio de conceptos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-height pannable/zoomable canvas; a prompt bar on top where you drop a concept; nodes are visual blocks with a tiny live drawing; a side sheet opens on click. */
+:root{
+  --bg:#E4E7E1; --surface:#F7F8F4; --fg:#1F2426; --muted:#5F6B66; --line:#C9CFC6; --dots:#CDD3CA;
+  --accent:#3F3DAA; --accent-soft:#E0E0F5; --off:#B2375F; --off-soft:#F4DCE5; --ok:#5A7D0A; --ok-soft:#E5EDCF; --lock:#8E978F;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--dots:#262A31;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--dots:#262A31;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;box-sizing:border-box}
+.top{position:absolute;top:12px;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;pointer-events:none}
+.top>*{pointer-events:auto}
+.brand{font-family:var(--display);font-size:18px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.brand small{display:block;font:500 10px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ask{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 12px;align-items:center;flex:1;min-width:220px;max-width:460px}
+.ask input{border:none;background:transparent;color:var(--fg);font:15px var(--body);flex:1;min-width:0;outline:none}
+.ask button{font:500 13px var(--body);border:none;background:var(--fg);color:var(--bg);border-radius:7px;padding:7px 12px;cursor:pointer}
+.legend{display:flex;gap:8px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#space{position:absolute;inset:0;cursor:grab;background:var(--bg);background-image:radial-gradient(var(--dots) 1.2px,transparent 1.2px);background-size:24px 24px}
+#space.panning{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+svg#edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+svg#edges path{fill:none;stroke:var(--line);stroke-width:2}
+svg#edges path.hot{stroke:var(--accent);stroke-width:2.5}
+.node{position:absolute;width:168px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px 10px;cursor:pointer;user-select:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;box-sizing:border-box}
+.node.spawn{opacity:0;transform:scale(.7)}
+.node:hover{border-color:var(--fg)}
+.node.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.node.locked{border-style:dashed;opacity:.75}
+.node .h{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+.node .t{font-family:var(--display);font-size:15px;line-height:1.1}
+.node .st{width:9px;height:9px;border-radius:50%;flex:none}
+.st.bien{background:var(--ok)}.st.casi{background:var(--off)}.st.pared{background:var(--off);outline:2px solid var(--off-soft)}.st.nuevo{background:var(--lock)}
+.node canvas{width:100%;height:64px;display:block;border-radius:6px;background:var(--bg)}
+.node .m{font:11px var(--mono);color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.node.goal{width:190px;border-width:2px;border-color:var(--fg)}
+
+.sheet{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:72px;bottom:16px;width:min(340px,calc(100% - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-sizing:border-box;overflow:auto;z-index:6;transform:translateX(120%);transition:transform .3s}
+.sheet.open{transform:none}
+.sheet h2{font-family:var(--display);font-weight:500;font-size:24px;margin:0 0 2px;line-height:1.1}
+.sheet .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin:14px 0 4px}
+.sheet p{margin:0 0 8px;line-height:1.5}
+.sheet canvas{width:100%;height:150px;display:block;border-radius:8px;background:var(--bg)}
+.sheet .x{position:absolute;top:10px;right:10px;border:none;background:transparent;color:var(--muted);font-size:20px;cursor:pointer}
+.sheet .pill{display:inline-block;font:500 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px}
+.pill.bien{background:var(--ok-soft);color:var(--ok)}.pill.casi,.pill.pared{background:var(--off-soft);color:var(--off)}.pill.nuevo{background:var(--bg);color:var(--muted)}
+.sheet .j{border-left:3px solid var(--off);padding-left:10px;font-size:13px;margin:6px 0}
+.sheet .j q{font-family:var(--display);font-size:14px}
+.sheet .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.sheet .acts button{font:500 13px var(--body);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.sheet .acts button.p{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.links{display:flex;gap:6px;flex-wrap:wrap}.links span{font:500 11px var(--mono);padding:3px 7px;border-radius:6px;background:var(--accent-soft);cursor:pointer}
+.empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:var(--muted);max-width:40ch;pointer-events:none;z-index:1}
+.empty b{display:block;font-family:var(--display);font-weight:500;font-size:22px;color:var(--fg);margin-bottom:4px}
+.zoom{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:16px;z-index:5;display:flex;gap:4px}
+.zoom button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:16px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="top">
+  <div class="brand">Learn Anything<small>espacio · prototipo 3</small></div>
+  <form class="ask" id="ask"><input id="q" placeholder="tira un concepto: tensores" autocomplete="off"><button>tirar</button></form>
+  <div class="legend"><span><i style="background:var(--ok)"></i>bien</span><span><i style="background:var(--off)"></i>casi / pared</span><span><i style="background:var(--lock)"></i>sin tocar</span></div>
+</div>
+<div class="empty" id="empty"><b>El espacio está vacío.</b>Escribe un concepto arriba. Los bloques que ya tocaste aparecen con su estado; los que faltan, en gris.</div>
+<div id="space"><div id="world"><svg id="edges"></svg></div></div>
+<div class="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf" title="centrar">⌂</button></div>
+<aside class="sheet" id="sheet"><button class="x" id="close">×</button><div id="sheetBody"></div></aside>
+
+<script>
+// ---------- concept graph for "tensores" ----------
+const G={
+ vector:{t:"vector",st:"bien",x:40,y:60,m:"[2, 3] · lista de números",d:"Una lista de números. Una función que recibe vector y devuelve vector es (x: number[]) => number[].",vis:"vector",j:["h = f(x)… ¿qué estoy viendo?"]},
+ funcion:{t:"función",st:"bien",x:40,y:220,m:"h = f(x)",d:"Entra algo, sale algo. f es solo un nombre. Leerlo como código quitó la pared.",vis:"fn",j:["h = f(x)… ¿qué estoy viendo?"]},
+ matriz:{t:"matriz · W·x + b",st:"bien",x:260,y:60,m:"una fila por pregunta",d:"Cada fila es una recta; multiplicar por x es hacer todas las preguntas a la vez. Lo viste como bloque de unión en el nivel 2.",vis:"matrix",j:[]},
+ nolin:{t:"no linealidad",st:"bien",x:260,y:220,m:"tanh dobla el papel",d:"Sin tanh, apilar matrices sigue siendo una recta. Las dimensiones sin doblez no sirven.",vis:"bend",j:["Las redes de múltiples capas son para agregar dimensionalidad"]},
+ capa:{t:"capa",st:"bien",x:480,y:60,m:"neuronas = rectas",d:"Cada neurona agrega una recta; la capa es el conjunto. Más rectas = capa más ancha.",vis:"lines",j:["¿Cada capa agrega una recta?","Cada capa resalta features que va encontrando"]},
+ coords:{t:"cambio de coordenadas",st:"casi",x:480,y:220,m:"(x,y) → (h₁,h₂)",d:"La capa no agrega dimensiones: cambia de sistema de coordenadas buscando uno donde el problema sea una recta. El círculo en polares es r < 0.67.",vis:"polar",j:["Las redes de múltiples capas son para agregar dimensionalidad"]},
+ prof:{t:"profundidad",st:"bien",x:700,y:60,m:"features de features",d:"Rectas sobre el espacio ya doblado. C está hecha de A y B.",vis:"deep",j:["Una capa dice A y B y la siguiente dice C","Al pasar de 100 a 20 neuronas…"]},
+ cadena:{t:"regla de la cadena",st:"nuevo",x:700,y:220,m:"d/dx f(g(x)) = f'·g'",d:"Derivada de afuera por derivada de adentro. Con tres capas, tres factores.",vis:"chain",j:[]},
+ jac:{t:"jacobiana",st:"pared",x:920,y:140,m:"derivada vector→vector",d:"Si f recibe 3 y devuelve 2, su derivada son 6 números en una matriz. La regla de la cadena se vuelve multiplicar matrices, y el orden importa. Aquí te hundías; es la antesala de tensores.",vis:"jac",j:["Backpropagation ahí uff siempre me hundo"]},
+ backprop:{t:"backprop",st:"nuevo",x:920,y:300,m:"cadena + caché",d:"Los productos comparten factores. Calcularlos una vez desde la salida es memoización.",vis:"back",j:[]},
+ metric:{t:"tensor métrico",st:"nuevo",x:1140,y:60,m:"g_ij · cómo se mide",d:"En polares la distancia no es √(dr²+dθ²). El tensor métrico dice cómo medir en cada sistema de coordenadas.",vis:"metric",j:[]},
+ indices:{t:"índices arriba / abajo",st:"nuevo",x:1140,y:220,m:"vᵢ vs vⁱ",d:"Dos tipos de objeto que cambian al revés cuando cambias de base. Covariante y contravariante.",vis:"idx",j:[]},
+ tensores:{t:"tensores",st:"nuevo",x:1360,y:140,m:"lo que no cambia al cambiar de coordenadas",d:"Un objeto que vive en el papel y tiene reglas precisas de cómo se ven sus componentes cuando el papel se deforma. Todo lo de la izquierda es el camino.",vis:"tensor",j:[],goal:true},
+};
+const EDGES=[["vector","matriz"],["funcion","matriz"],["funcion","nolin"],["matriz","capa"],["nolin","coords"],["matriz","coords"],["capa","prof"],["coords","prof"],["funcion","cadena"],["cadena","jac"],["vector","jac"],["coords","jac"],["jac","backprop"],["cadena","backprop"],["prof","backprop"],["coords","metric"],["jac","indices"],["coords","indices"],["metric","tensores"],["indices","tensores"],["jac","tensores"]];
+const APP={capa:"Tú eres la red",coords:"Tú eres la red · slider doblado",matriz:"Tú eres la red · bloque unión",nolin:"Una capa vs dos",funcion:"Toca donde te pierdes",vector:"Toca donde te pierdes"};
+
+// ---------- tiny visuals ----------
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const V={
+ vector:(c,w,h)=>{ax(c,w,h);arrow(c,w*0.2,h*0.8,w*0.75,h*0.25,css("--accent"))},
+ fn:(c,w,h)=>{box(c,w*0.08,h*0.3,w*0.22,h*0.4,"x");arrow(c,w*0.3,h*0.5,w*0.4,h*0.5,css("--muted"));box(c,w*0.4,h*0.2,w*0.2,h*0.6,"f");arrow(c,w*0.6,h*0.5,w*0.7,h*0.5,css("--muted"));box(c,w*0.7,h*0.3,w*0.22,h*0.4,"h")},
+ matrix:(c,w,h)=>{const cols=[css("--accent"),css("--off"),css("--ok")];for(let r=0;r<3;r++)for(let k=0;k<2;k++){c.fillStyle=cols[r];c.globalAlpha=.25+k*.35;c.fillRect(w*0.12+k*w*0.16,h*0.15+r*h*0.25,w*0.14,h*0.2)}c.globalAlpha=1;c.fillStyle=css("--muted");c.font="500 11px "+css("--mono");c.fillText("·",w*0.47,h*0.55);box(c,w*0.52,h*0.2,w*0.1,h*0.6,"x");c.fillText("→",w*0.66,h*0.55);for(let r=0;r<3;r++){c.fillStyle=cols[r];c.fillRect(w*0.8,h*0.15+r*h*0.25,w*0.1,h*0.2)}},
+ bend:(c,w,h)=>{c.strokeStyle=css("--line");c.lineWidth=1;for(let g=0;g<=6;g++){c.beginPath();for(let i=0;i<=30;i++){const t=i/30;const x=w*(0.08+t*0.84),y=h*(0.1+g/6*0.8)+Math.sin(t*Math.PI)*(g-3)*5;i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();c.beginPath();for(let i=0;i<=30;i++){const t=i/30;const x=w*(0.08+g/6*0.84)+Math.sin(t*Math.PI)*(g-3)*4,y=h*(0.1+t*0.8);i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}},
+ lines:(c,w,h)=>{pts(c,w,h,(x,y)=>x>0.1&&y>0.05);ln(c,w,h,0.1,1.6,css("--accent"));ln(c,w,h,0.05,0.0,css("--off"))},
+ polar:(c,w,h)=>{c.strokeStyle=css("--line");c.lineWidth=1;const cx=w*0.5,cy=h*0.5;for(let r=1;r<=4;r++){c.beginPath();c.arc(cx,cy,r*h*0.11,0,7);c.stroke()}for(let a=0;a<8;a++){c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a*Math.PI/4)*h*.46,cy+Math.sin(a*Math.PI/4)*h*.46);c.stroke()}c.strokeStyle=css("--accent");c.lineWidth=2.5;c.beginPath();c.arc(cx,cy,h*0.3,0,7);c.stroke()},
+ deep:(c,w,h)=>{const L=[3,4,4,2];for(let l=0;l<4;l++)for(let i=0;i<L[l];i++){const x=w*(0.12+l*0.25),y=h*(0.5+(i-(L[l]-1)/2)*0.2);if(l<3)for(let j=0;j<L[l+1];j++){c.strokeStyle=css("--line");c.lineWidth=1;c.beginPath();c.moveTo(x,y);c.lineTo(w*(0.12+(l+1)*0.25),h*(0.5+(j-(L[l+1]-1)/2)*0.2));c.stroke()}}for(let l=0;l<4;l++)for(let i=0;i<L[l];i++){c.fillStyle=l===3?css("--ok"):css("--accent");c.beginPath();c.arc(w*(0.12+l*0.25),h*(0.5+(i-(L[l]-1)/2)*0.2),4,0,7);c.fill()}},
+ chain:(c,w,h)=>{c.fillStyle=css("--fg");c.font="500 12px "+css("--mono");c.fillText("∂L/∂θ₁ =",w*0.05,h*0.35);const cols=[css("--ok"),css("--accent"),css("--off")];["∂L/∂y","∂y/∂h","∂h/∂θ₁"].forEach((s,i)=>{c.fillStyle=cols[i];c.fillText(s+(i<2?" ·":""),w*(0.05+i*0.33),h*0.75)})},
+ jac:(c,w,h)=>{c.fillStyle=css("--muted");c.font="500 11px "+css("--mono");c.fillText("f: ℝ³→ℝ²",w*0.05,h*0.25);c.fillText("Df =",w*0.05,h*0.7);for(let r=0;r<2;r++)for(let k=0;k<3;k++){c.fillStyle=css("--off");c.globalAlpha=.3+((r+k)%3)*.25;c.fillRect(w*0.4+k*w*0.17,h*0.3+r*h*0.3,w*0.14,h*0.24)}c.globalAlpha=1},
+ back:(c,w,h)=>{for(let i=0;i<4;i++){box(c,w*(0.08+i*0.23),h*0.25,w*0.17,h*0.5,"f"+(i+1))}c.strokeStyle=css("--off");c.lineWidth=2;for(let i=3;i>0;i--){arrow(c,w*(0.08+i*0.23),h*0.88,w*(0.08+(i-1)*0.23+0.17),h*0.88,css("--off"))}},
+ metric:(c,w,h)=>{c.strokeStyle=css("--line");for(let g=0;g<=5;g++){c.beginPath();for(let i=0;i<=20;i++){const t=i/20;c.lineTo(w*(0.1+t*0.8),h*(0.15+g*0.14)+Math.sin(t*3+g)*4)}c.stroke()}c.strokeStyle=css("--accent");c.lineWidth=2.5;c.beginPath();c.moveTo(w*0.3,h*0.7);c.quadraticCurveTo(w*0.5,h*0.2,w*0.75,h*0.4);c.stroke();c.fillStyle=css("--fg");c.font="500 11px "+css("--mono");c.fillText("ds² = g·dx·dx",w*0.1,h*0.95)},
+ idx:(c,w,h)=>{c.fillStyle=css("--fg");c.font="500 16px "+css("--mono");c.fillText("vⁱ",w*0.2,h*0.6);c.fillText("vᵢ",w*0.65,h*0.6);arrow(c,w*0.2,h*0.85,w*0.4,h*0.85,css("--accent"));arrow(c,w*0.8,h*0.85,w*0.6,h*0.85,css("--off"))},
+ tensor:(c,w,h)=>{for(let r=0;r<3;r++)for(let k=0;k<3;k++){c.fillStyle=css("--fg");c.globalAlpha=.15+((r*3+k)%4)*.2;c.fillRect(w*0.3+k*w*0.13,h*0.15+r*h*0.24,w*0.11,h*0.2)}c.globalAlpha=1;c.fillStyle=css("--muted");c.font="500 11px "+css("--mono");c.fillText("Tᵢⱼ",w*0.08,h*0.5)},
+};
+function ax(c,w,h){c.strokeStyle=css("--line");c.lineWidth=1;c.beginPath();c.moveTo(w*0.1,h*0.9);c.lineTo(w*0.9,h*0.9);c.moveTo(w*0.1,h*0.9);c.lineTo(w*0.1,h*0.1);c.stroke()}
+function arrow(c,x1,y1,x2,y2,col){c.strokeStyle=col;c.fillStyle=col;c.lineWidth=2;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();const a=Math.atan2(y2-y1,x2-x1);c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-7*Math.cos(a-0.4),y2-7*Math.sin(a-0.4));c.lineTo(x2-7*Math.cos(a+0.4),y2-7*Math.sin(a+0.4));c.fill()}
+function box(c,x,y,w,h,s){c.strokeStyle=css("--muted");c.lineWidth=1.2;c.strokeRect(x,y,w,h);c.fillStyle=css("--fg");c.font="500 11px "+css("--mono");c.textAlign="center";c.fillText(s,x+w/2,y+h/2+4);c.textAlign="left"}
+function pts(c,w,h,f){let s=7;const r=()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296};for(let i=0;i<40;i++){const x=r()*2-1,y=r()*2-1;c.fillStyle=f(x,y)?css("--accent"):css("--off");c.beginPath();c.arc(w*(x+1)/2,h*(1-y)/2,2.5,0,7);c.fill()}}
+function ln(c,w,h,px,th,col){const d=[Math.cos(th),Math.sin(th)];c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.moveTo(w*(px-d[0]*2+1)/2,h*(1-(0-d[1]*2))/2);c.lineTo(w*(px+d[0]*2+1)/2,h*(1-(0+d[1]*2))/2);c.stroke()}
+function paint(cv,vis){const dpr=devicePixelRatio||1;const w=cv.clientWidth||150,h=cv.clientHeight||64;cv.width=w*dpr;cv.height=h*dpr;const c=cv.getContext("2d");c.scale(dpr,dpr);c.clearRect(0,0,w,h);(V[vis]||(()=>{}))(c,w,h)}
+
+// ---------- space (pan / zoom / drag) ----------
+const space=document.getElementById("space"),world=document.getElementById("world"),svg=document.getElementById("edges");
+let tx=40,ty=90,sc=1,panning=null,dragN=null,sel=null,spawned=false;
+function apply(){world.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`}
+space.addEventListener("pointerdown",e=>{if(e.target.closest(".node"))return;panning={x:e.clientX-tx,y:e.clientY-ty};space.classList.add("panning");space.setPointerCapture(e.pointerId)});
+space.addEventListener("pointermove",e=>{if(panning){tx=e.clientX-panning.x;ty=e.clientY-panning.y;apply()}
+  if(dragN){const n=G[dragN.id];n.x=(e.clientX-tx)/sc-dragN.ox;n.y=(e.clientY-ty)/sc-dragN.oy;place(dragN.id);edges()}});
+space.addEventListener("pointerup",()=>{panning=null;space.classList.remove("panning");if(dragN&&!dragN.moved){select(dragN.id)}dragN=null});
+space.addEventListener("wheel",e=>{e.preventDefault();const k=Math.exp(-e.deltaY*0.0015);const nx=(e.clientX-tx)/sc,ny=(e.clientY-ty)/sc;sc=Math.max(.35,Math.min(2.2,sc*k));tx=e.clientX-nx*sc;ty=e.clientY-ny*sc;apply()},{passive:false});
+document.getElementById("zi").onclick=()=>{sc=Math.min(2.2,sc*1.2);apply()};
+document.getElementById("zo").onclick=()=>{sc=Math.max(.35,sc/1.2);apply()};
+document.getElementById("zf").onclick=fit;
+function fit(){const r=space.getBoundingClientRect();const W=1560,Hh=420;sc=Math.min((r.width-40)/W,(r.height-140)/Hh,1.1);tx=(r.width-W*sc)/2;ty=90+(r.height-120-Hh*sc)/2;apply()}
+
+function place(id){const n=G[id],el=n.el;el.style.left=n.x+"px";el.style.top=n.y+"px"}
+function edges(){svg.innerHTML=EDGES.map(([a,b])=>{const A=G[a],B=G[b];if(!A.el||!B.el)return"";const x1=A.x+A.el.offsetWidth,y1=A.y+A.el.offsetHeight/2,x2=B.x,y2=B.y+B.el.offsetHeight/2;const dx=Math.max(40,(x2-x1)/2);const hot=sel&&(a===sel||b===sel);return`<path class="${hot?"hot":""}" d="M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}"/>`}).join("")}
+
+function spawn(){if(spawned)return;spawned=true;document.getElementById("empty").hidden=true;
+  const order=Object.keys(G);order.forEach((id,i)=>{const n=G[id];const el=document.createElement("div");el.className="node spawn"+(n.goal?" goal":"")+(n.st==="nuevo"?" locked":"");el.innerHTML=`<div class="h"><span class="t">${n.t}</span><span class="st ${n.st}"></span></div><canvas></canvas><div class="m">${n.m}</div>`;
+    n.el=el;world.appendChild(el);place(id);paint(el.querySelector("canvas"),n.vis);
+    el.addEventListener("pointerdown",e=>{dragN={id,ox:(e.clientX-tx)/sc-n.x,oy:(e.clientY-ty)/sc-n.y,moved:false};space.setPointerCapture(e.pointerId);const m=()=>{dragN&&(dragN.moved=true)};el.addEventListener("pointermove",m,{once:true})});
+    setTimeout(()=>{el.classList.remove("spawn");edges()},60+i*90)});
+  fit();setTimeout(edges,80)}
+
+function select(id){sel=id;Object.values(G).forEach(n=>n.el&&n.el.classList.toggle("sel",n===G[id]));edges();const n=G[id];
+  const pre=EDGES.filter(e=>e[1]===id).map(e=>e[0]),post=EDGES.filter(e=>e[0]===id).map(e=>e[1]);
+  document.getElementById("sheetBody").innerHTML=`<span class="pill ${n.st}">${n.st==="nuevo"?"sin tocar":n.st}</span><h2>${n.t}</h2><p style="color:var(--muted);font-family:var(--mono);font-size:12px">${n.m}</p>
+    <canvas id="big"></canvas>
+    <span class="k">qué es</span><p>${n.d}</p>
+    ${n.j.length?`<span class="k">tus hipótesis aquí</span>${n.j.map(q=>`<div class="j"><q>${q}</q></div>`).join("")}`:""}
+    ${pre.length?`<span class="k">viene de</span><div class="links">${pre.map(p=>`<span data-go="${p}">${G[p].t}</span>`).join("")}</div>`:""}
+    ${post.length?`<span class="k">lleva a</span><div class="links">${post.map(p=>`<span data-go="${p}">${G[p].t}</span>`).join("")}</div>`:""}
+    <div class="acts">${APP[id]?`<button class="p">abrir · ${APP[id]}</button>`:`<button class="p">${n.st==="nuevo"?"empezar aquí":"volver a jugar"}</button>`}<button>ver en el journal</button></div>`;
+  paint(document.getElementById("big"),n.vis);document.getElementById("sheet").classList.add("open")}
+document.getElementById("sheetBody").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)select(g.dataset.go)});
+document.getElementById("close").onclick=()=>{document.getElementById("sheet").classList.remove("open");sel=null;Object.values(G).forEach(n=>n.el&&n.el.classList.remove("sel"));edges()};
+document.getElementById("ask").addEventListener("submit",e=>{e.preventDefault();const q=document.getElementById("q").value.trim().toLowerCase();if(!q)return;spawn();if(!q.includes("tensor")){document.getElementById("empty").hidden=false;document.getElementById("empty").innerHTML=`<b>Por ahora solo “tensores”.</b>Es el único tema con grafo curado en este prototipo. Lo tiré por ti.`;setTimeout(()=>document.getElementById("empty").hidden=true,2500)}});
+addEventListener("resize",()=>{if(spawned)edges()});
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{Object.values(G).forEach(n=>n.el&&paint(n.el.querySelector("canvas"),n.vis))});
+apply();
+</script>
+
+</body></html>

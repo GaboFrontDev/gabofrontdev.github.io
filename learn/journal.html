@@ -1,0 +1,98 @@
+<!doctype html><html lang="es" data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#12171D;color:#E8ECF0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Journal de hipótesis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a chronological ledger of hypotheses; left rail = concept filters; each entry shows what you said, the one detail that was off, the refined version, and what made you see it. */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --fg:#17202A; --muted:#5B6673; --line:#D6DCE3;
+  --accent:#0E7C7B; --accent-soft:#E1F1F0; --off:#B8471F; --off-soft:#F9E7DF; --ok:#2E7D4F; --ok-soft:#E3F2E8;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12171D;--surface:#1A2129;--fg:#E8ECF0;--muted:#97A3B0;--line:#2C3640;--accent:#4FC3BF;--accent-soft:#163A39;--off:#F0905F;--off-soft:#432518;--ok:#6CCB8F;--ok-soft:#1C3A28;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12171D;--surface:#1A2129;--fg:#E8ECF0;--muted:#97A3B0;--line:#2C3640;--accent:#4FC3BF;--accent-soft:#163A39;--off:#F0905F;--off-soft:#432518;--ok:#6CCB8F;--ok-soft:#1C3A28;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:900px;margin:0 auto}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(26px,4vw,34px);line-height:1.1;margin:0 0 4px;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.lede{color:var(--muted);margin:0 0 20px;max-width:62ch}
+.wrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px}
+@media (max-width:640px){.wrap{grid-template-columns:1fr}}
+.rail h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font:500 12px var(--body);padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tag.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tag .n{color:var(--muted);margin-left:4px}.tag.on .n{color:inherit;opacity:.7}
+.stats{margin-top:18px;font-size:13px;color:var(--muted);line-height:1.7}
+.stats b{color:var(--fg);font-weight:500;font-family:var(--mono)}
+.list{display:flex;flex-direction:column;gap:10px}
+.e{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.e summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline}
+.e summary::-webkit-details-marker{display:none}
+.e .t{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.e .q{font-family:var(--display);font-size:17px;line-height:1.3}
+.e .q::before{content:"“"}.e .q::after{content:"”"}
+.e .st{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.st.near{background:var(--off-soft);color:var(--off)}.st.ok{background:var(--ok-soft);color:var(--ok)}
+.e .body{padding:0 14px 14px;display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:12px}
+.k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.off{border-left:3px solid var(--off);padding-left:10px}
+.fix{border-left:3px solid var(--ok);padding-left:10px}
+.by{color:var(--muted);font-size:14px}
+.by a{color:var(--accent)}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.ctags span{font:500 11px var(--mono);padding:3px 7px;border-radius:6px;background:var(--accent-soft);color:var(--fg)}
+.e[hidden]{display:none}
+.chain{font-size:13px;color:var(--muted);padding:0 14px 12px}
+.chain b{font-weight:500;color:var(--fg)}
+</style>
+<main>
+<p class="eyebrow">Learn Anything · prototipo 2 · redes neuronales · 18–20 oct</p>
+<h1>Lo que creíste, y qué lo afinó.</h1>
+<p class="lede">Cada entrada es una hipótesis tuya tal como la dijiste, el único detalle que estaba mal, la versión afinada, y qué fue lo que te lo hizo ver. No escribiste nada de esto; se capturó mientras jugabas.</p>
+<div class="wrap">
+  <aside class="rail">
+    <h2>Conceptos</h2>
+    <div class="tags" id="tags"></div>
+    <div class="stats" id="stats"></div>
+  </aside>
+  <div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+</main>
+<script>
+const E=[
+ {t:"dom 10:36",q:"h = f(x)… ¿qué estoy viendo? ¿qué es exactamente?",st:"pared",off:"No era un hueco de redes: era notación sin contexto. No sabías qué letra es función, cuál es variable, ni qué tipo de cosa entra y sale.",fix:"const h = f(x). f es el nombre de una función, x la entrada, h donde guardas la salida. Lo único distinto a código: x y h son listas de números.",by:"Leerlo como JavaScript.",c:["notación","función","vector"]},
+ {t:"dom 11:04",q:"No concibo cómo se comporta una capa vs varias.",st:"pared",off:"El nivel 2 decía “fronteras curvas” como si fuera explicación. Era una afirmación sin imagen.",fix:"Una capa solo puede mover una recta. Varias neuronas combinadas pueden encerrar regiones. No es falta de entrenamiento: es que no tiene la forma.",by:"Ver dos redes entrenar en vivo sobre los mismos puntos, con el tablero y el círculo.",c:["capa","frontera","no linealidad"]},
+ {t:"dom 12:23",q:"Solo es una aproximación, ¿cierto? Existe una función exacta pero encontrarla puede ser imposible.",st:"casi",off:"Nada mal en esencia. El matiz: para “¿es un gato?” la función exacta no es difícil de encontrar; ni siquiera se puede escribir.",fix:"La red es la única herramienta para esculpir una aproximación de una función que nadie puede escribir, usando solo ejemplos. El teorema de aproximación universal dice que puede; no dice cómo.",by:"Tu propia pregunta.",c:["aproximación","entrenamiento"]},
+ {t:"dom 17:35",q:"Las redes de múltiples capas son para agregar dimensionalidad a la clasificación.",st:"casi",off:"Más dimensiones sin doblez no sirven: componer matrices sin tanh sigue siendo una recta. Y una capa puede tener menos neuronas que la entrada.",fix:"Las capas no agregan dimensiones; cambian de coordenadas de forma no lineal, buscando el sistema donde el problema se vuelve una recta.",by:"El círculo: en (x, y) no es separable; con z = x² + y² es un plano. Puente a coordenadas polares.",c:["capa","no linealidad","cambio de coordenadas"]},
+ {t:"mar 10:55",q:"¿Cada capa agrega una recta?",st:"casi",off:"Cada neurona agrega una recta. Cuatro rectas en pantalla eran una sola capa de cuatro neuronas.",fix:"Más rectas = capa más ancha. Una capa nueva = rectas dibujadas sobre el espacio ya doblado. La línea punteada del panel derecho ya era una segunda capa.",by:"El prototipo “tú eres la red”, nivel 4.",c:["neurona","capa","profundidad"]},
+ {t:"mar 10:56",q:"La capa es un paso de refinamiento: una aprende a clasificar algo y otra otro. Por eso hay 4-4-4 y luego 2.",st:"casi",off:"Ninguna capa clasifica por su cuenta; cada una fabrica piezas más grandes con las de la anterior. Y el 2 final no es refinamiento: es el número de respuestas.",fix:"Las de en medio tienen el ancho que decidas para doblar; la última es tan ancha como preguntas haces. 784 → 128 → 64 → 10.",by:"Bordes → esquinas → ojos → gato.",c:["capa","profundidad","arquitectura"]},
+ {t:"mar 10:57",q:"Cada capa resalta features que va encontrando.",st:"bien",off:"Un matiz de palabra: no las encuentra, las inventa. La feature es una pregunta que la capa decide hacer.",fix:"Las primeras capas hacen preguntas sobre los datos crudos; las siguientes, sobre las respuestas anteriores. Features de features.",by:"“Estar entre las dos rectas” del nivel 3 no existía en los puntos; tú lo inventaste al poner las rectas.",c:["features","capa"]},
+ {t:"mar 10:58",q:"Una capa dice “esto es A y B” y la siguiente dice “aparte hay feature C”.",st:"casi",off:"C no es del mismo tipo que A y B en fila; es una feature hecha de A y B.",fix:"Orejas + bigotes en una capa; “cara de gato” en la siguiente, que solo existe porque las dos anteriores ya existían. Eso es lo que una capa ancha no puede hacer y una red profunda sí.",by:"Distinguir capa ancha de red profunda.",c:["features","profundidad"]},
+ {t:"mar 10:59",q:"Al pasar de 100 neuronas a 20 encuentras grupos de features más sólidos.",st:"bien",off:"Correcto. El riesgo que faltaba: si el embudo es demasiado angosto no gana solidez, pierde cosas que necesitaba.",fix:"Cuello de botella: la red se queda con las 20 combinaciones que más información cargan. Es la base de autoencoders, embeddings y regularización.",by:"Nivel 4 con solo 2 rectas: ni el gradiente puede.",c:["arquitectura","cuello de botella","capacidad"]},
+ {t:"mar 11:01",q:"Una mala arquitectura puede quemar features útiles y clasificar mal.",st:"bien",off:"Solo el matiz de “mala”: a veces quemar es el objetivo (ignorar el fondo de la foto).",fix:"La arquitectura le dice a la red qué tiene permitido recordar. Underfitting por capacidad falla incluso en entrenamiento; overfitting acierta lo visto y falla lo nuevo.",by:"Tu deducción.",c:["arquitectura","capacidad"]},
+ {t:"mar 11:05",q:"Entonces sí hace falta mucho feature engineering.",st:"casi",off:"Sí, pero ya no del tipo que pensabas: las features las inventa la red. Lo que quedó es diseñar la arquitectura donde puede encontrarlas.",fix:"Feature engineering → diseño de arquitectura (inductive bias) → datos y cómputo. Cada escalón automatizó el anterior. La frontera hoy: interpretabilidad, saber qué preguntas inventó la red.",by:"La historia de 2012 y de los transformers.",c:["features","arquitectura","frontera"]},
+];
+const tags=document.getElementById("tags"),list=document.getElementById("list"),stats=document.getElementById("stats");
+const counts={};E.forEach(e=>e.c.forEach(c=>counts[c]=(counts[c]||0)+1));
+let sel=null;
+function draw(){
+  tags.innerHTML=`<button class="tag ${sel?"":"on"}" data-c="">todas<span class="n">${E.length}</span></button>`+Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<button class="tag ${sel===c?"on":""}" data-c="${c}">${c}<span class="n">${n}</span></button>`).join("");
+  list.innerHTML=E.map((e,i)=>`<details class="e" ${sel&&!e.c.includes(sel)?"hidden":""} ${i===E.length-1?"open":""}>
+    <summary><span class="t">${e.t}</span><span class="q">${e.q}</span><span class="st ${e.st==="bien"?"ok":"near"}">${e.st}</span></summary>
+    <div class="body">
+      <div class="off"><span class="k">el detalle</span>${e.off}</div>
+      <div class="fix"><span class="k">afinada</span>${e.fix}</div>
+      <div class="by"><span class="k">qué te lo hizo ver</span>${e.by}</div>
+      <div class="ctags">${e.c.map(c=>`<span>${c}</span>`).join("")}</div>
+    </div></details>`).join("");
+  const near=E.filter(e=>e.st==="casi").length,ok=E.filter(e=>e.st==="bien").length,walls=E.filter(e=>e.st==="pared").length;
+  stats.innerHTML=`<b>${walls}</b> paredes · <b>${near}</b> casi · <b>${ok}</b> bien<br>la cadena va de pared a bien en <b>2 días</b>`;
+}
+tags.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;sel=b.dataset.c||null;draw()});
+draw();
+</script>
+
+</body></html>

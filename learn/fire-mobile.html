@@ -1,0 +1,252 @@
+<!doctype html><html lang="es" data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#12171D;color:#E8ECF0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Prueba de fuego · móvil</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Literata:opsz,wght@7..72,400;7..72,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single column for the phone. Stage tabs, then the code with tappable slots, the companion card beneath, results, and the auto-written journal. Slot options open as a bottom sheet. */
+:root{
+  --bg:#E4E7E1; --surface:#F7F8F4; --fg:#1F2426; --muted:#5F6B66; --line:#C9CFC6; --ed:#1E2127; --edfg:#ECEDE6;
+  --accent:#3F3DAA; --accent-soft:#E0E0F5; --off:#B2375F; --off-soft:#F4DCE5; --ok:#5A7D0A; --ok-soft:#E5EDCF; --lock:#8E978F;
+  --display:"Fraunces",Georgia,serif; --body:"Literata",Georgia,serif; --ui:system-ui,-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--ed:#121419;--edfg:#ECEDE6;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--ed:#121419;--edfg:#ECEDE6;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-block:20px 90px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:520px;margin:0 auto}
+h1{font-family:var(--display);font-weight:500;font-size:26px;line-height:1.1;margin:0 0 4px;text-wrap:balance}
+.eyebrow{font-family:var(--ui);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.lede{color:var(--muted);margin:0 0 16px;font-size:14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none}
+.tabs button{flex:none;font:500 13px var(--ui);padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.tabs button.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tabs button.ok::before{content:"✓ ";color:var(--ok)}.tabs button.on.ok::before{color:var(--bg)}
+.stage-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.stage-h .t{font-family:var(--display);font-size:19px}
+.stage-h .d{font-size:13px;color:var(--muted)}
+.code{background:var(--ed);color:var(--edfg);border-radius:12px;padding:14px 12px;font:13px/1.9 var(--mono);overflow-x:auto;white-space:pre}
+.code .c{color:#7E8A84;font-style:italic}.code .k{color:#8F8DF2}.code .f{color:#B6D55A}
+.slot{display:inline-block;font:inherit;line-height:1.4;padding:3px 10px;border-radius:7px;border:1.5px dashed var(--accent);color:var(--accent);background:rgba(143,141,242,.12);cursor:pointer;white-space:nowrap;vertical-align:baseline}
+.slot.filled{border-style:solid;color:var(--edfg);background:rgba(143,141,242,.22)}
+.slot.ok{border-color:var(--ok);background:rgba(182,213,90,.18)}
+.slot.bad{border-color:var(--off);background:rgba(242,122,158,.18)}
+.slot.cur{box-shadow:0 0 0 3px rgba(143,141,242,.35)}
+.help{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.help .k2{font-family:var(--ui);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.help p{margin:0 0 8px;font-size:14px}
+.help .fix{border-left:3px solid var(--off);padding-left:10px;margin:6px 0 10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:500 12px var(--ui);padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);text-align:left}
+.chips button small{display:block;font-size:11px;color:var(--muted)}
+.run{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;justify-content:center;pointer-events:none}
+.run button{pointer-events:auto;font:500 15px var(--ui);padding:13px 22px;border-radius:99px;border:none;background:var(--fg);color:var(--bg);box-shadow:0 6px 20px rgba(0,0,0,.18);width:min(100%,520px)}
+.run button:disabled{opacity:.5}
+.res{margin-top:12px;font:13px var(--mono);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);white-space:pre-wrap;word-break:break-word}
+.res.ok{border-color:var(--ok);color:var(--ok)}.res.bad{border-color:var(--off);color:var(--off)}
+.vis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+canvas{width:100%;aspect-ratio:1;display:block;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.journal{margin-top:22px}
+.journal h2{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 6px}
+.journal .e{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:14px}
+.journal .e q{font-family:var(--mono);font-size:12px;color:var(--off)}
+.journal .e q::before,.journal .e q::after{content:""}
+.journal .e .a{margin-top:4px}
+.journal .empty{color:var(--muted);font-size:14px}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-radius:16px 16px 0 0;border-top:1px solid var(--line);padding:14px max(16px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));transform:translateY(105%);transition:transform .25s;max-height:80vh;overflow:auto;box-shadow:0 -10px 30px rgba(0,0,0,.15)}
+.sheet.open{transform:none}
+.sheet .k2{font-family:var(--ui);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.sheet .ctx{font:12px/1.6 var(--mono);color:var(--muted);margin-bottom:10px;white-space:pre-wrap}
+.opt{display:block;width:100%;text-align:left;font:13px/1.5 var(--mono);padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-bottom:8px;white-space:pre-wrap;word-break:break-word}
+.opt:active{border-color:var(--accent)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:9;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.on{opacity:1;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<main>
+<p class="eyebrow">Learn Anything · prototipo 5 · prueba de fuego en el teléfono</p>
+<h1>La misma red. Sin teclear.</h1>
+<p class="lede">Toca cada hueco y elige el bloque que crees que va. Las opciones equivocadas no son absurdas: son las hipótesis que casi todo el mundo hace. Cuando eliges una, el acompañante te dice qué repasar, y el journal la guarda solo.</p>
+<div class="tabs" id="tabs"></div>
+<div class="stage-h"><span class="t" id="st"></span><span class="d" id="sd"></span></div>
+<div class="code" id="code"></div>
+<div class="help" id="help"></div>
+<div id="res"></div>
+<div class="vis" id="vis" hidden><canvas id="plane" width="300" height="300"></canvas><canvas id="loss" width="300" height="300"></canvas></div>
+<section class="journal"><h2>Journal</h2><div id="journal"></div></section>
+</main>
+<div class="run"><button id="run">▶ correr esta etapa</button></div>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="k2" id="shk"></div><div class="ctx" id="shctx"></div><div id="opts"></div></div>
+
+<script>
+// ----- concept library the companion points to -----
+const C={
+  neurona:{t:"neurona = recta doblada",app:"Tú eres la red · nivel 1"},
+  sesgo:{t:"el sesgo mueve la recta",app:"Tú eres la red · arrastra el punto"},
+  matriz:{t:"matriz · una fila por pregunta",app:"Tú eres la red · bloque unión"},
+  capa:{t:"la salida es otra capa",app:"Tú eres la red · línea punteada"},
+  perdida:{t:"pérdida: un número que debe bajar",app:"Toca donde te pierdes · línea 3"},
+  gradiente:{t:"gradiente: hacia dónde mover θ",app:"Toca donde te pierdes · ∂L/∂θ₁"},
+  cadena:{t:"regla de la cadena",app:"Toca donde te pierdes · línea 4"},
+  tanh:{t:"derivada de tanh = 1 − h²",app:"Una capa vs dos · el doblez"},
+  jacobiana:{t:"jacobiana: derivada con forma de matriz",app:"Espacio · nodo rojo"},
+  descenso:{t:"gradient descent: resta la pendiente",app:"Tú eres la red · que lo haga solo"},
+};
+// ----- stages, slots, options (first option is correct; shuffled on display) -----
+const S=[
+ {id:"forward",t:"1 · forward",d:"h y o a partir de x",
+  code:`<span class="k">function</span> <span class="f">forward</span>(p, x) {
+  <span class="k">const</span> sig = z => 1 / (1 + Math.exp(-z));
+  <span class="k">const</span> h = p.W1.map((w, i) => Math.tanh(⟦0⟧));
+  <span class="k">const</span> z2 = ⟦1⟧;
+  <span class="k">return</span> { h, o: sig(z2) };
+}`,
+  slots:[
+   {ctx:"h[i] = tanh( … )  — lo que entra a cada neurona oculta",pre:["neurona","sesgo"],opts:[
+     {c:"w[0]*x[0] + w[1]*x[1] + p.b1[i]"},
+     {c:"w[0]*x[0] * w[1]*x[1] + p.b1[i]",fix:"Multiplicaste las entradas. Una neurona suma preguntas ponderadas; multiplicarlas no es una recta.",rev:["neurona","matriz"]},
+     {c:"w[0]*x[0] + w[1]*x[1]",fix:"Sin el sesgo b la recta siempre pasa por el origen. En el juego, b era arrastrar el punto.",rev:["sesgo"]}]},
+   {ctx:"z2 = …  — lo que entra a la neurona de salida",pre:["capa","matriz"],opts:[
+     {c:"h.reduce((s, hi, i) => s + p.w2[i]*hi, p.b2)"},
+     {c:"h.reduce((s, hi, i) => s + p.W1[i][0]*hi, p.b2)",fix:"Reusaste W1. La salida es otra capa, con sus propios pesos w2: la recta en el espacio doblado.",rev:["capa"]},
+     {c:"Math.max(...h)",fix:"Tomar el máximo no es una recta en el espacio oculto. La salida también es una neurona: suma ponderada más sesgo.",rev:["neurona","capa"]}]}]},
+ {id:"loss",t:"2 · loss",d:"qué tan mal salió o",
+  code:`<span class="k">function</span> <span class="f">loss</span>(o, t) {
+  <span class="k">const</span> e = 1e-9;
+  <span class="k">return</span> ⟦0⟧;
+}`,
+  slots:[{ctx:"L = …  — entropía cruzada binaria",pre:["perdida"],opts:[
+     {c:"-(t*Math.log(o+e) + (1-t)*Math.log(1-o+e))"},
+     {c:"t*Math.log(o+e) + (1-t)*Math.log(1-o+e)",fix:"Sin el signo menos, el número es negativo y crece cuando aciertas. La pérdida debe ser positiva y bajar.",rev:["perdida"]},
+     {c:"(o - t) ** 2",fix:"Funciona, pero no es entropía cruzada. Con sigmoid, el error cuadrático aplana el gradiente justo cuando estás muy equivocado.",rev:["perdida","gradiente"]}]}]},
+ {id:"backward",t:"3 · backward",d:"la regla de la cadena hacia atrás",
+  code:`<span class="k">function</span> <span class="f">backward</span>(p, x, t) {
+  <span class="k">const</span> { h, o } = forward(p, x);
+  <span class="k">const</span> g2  = ⟦0⟧;                 <span class="c">// dL/dz2</span>
+  <span class="k">const</span> gw2 = h.map((hi, i) => ⟦1⟧);   <span class="c">// dL/dw2</span>
+  <span class="k">const</span> gz1 = h.map((hi, i) => ⟦2⟧);   <span class="c">// dL/dz1</span>
+  <span class="k">return</span> {
+    W1: gz1.map((g, i) => ⟦3⟧),
+    b1: gz1,
+    w2: gw2,
+    b2: g2,
+  };
+}`,
+  slots:[
+   {ctx:"g2 = dL/dz2  — el primer eslabón de la cadena",pre:["gradiente","perdida"],opts:[
+     {c:"o - t"},
+     {c:"t - o",fix:"Signo invertido. Con t − o subirías la pérdida en vez de bajarla.",rev:["gradiente","descenso"]},
+     {c:"(o - t) * o * (1 - o)",fix:"La derivada de sigmoid ya se cancela con la de ln en la entropía cruzada. La estás aplicando dos veces.",rev:["cadena","perdida"]}]},
+   {ctx:"gw2[i] = dL/dw2[i]  — cada peso de salida",pre:["gradiente","cadena"],opts:[
+     {c:"g2 * hi"},
+     {c:"g2 * p.w2[i]",fix:"Confundes el peso con lo que multiplica. dz2/dw2[i] = h[i]: la derivada respecto a un peso es su entrada.",rev:["gradiente"]},
+     {c:"g2",fix:"Falta h[i]. Cada peso ve su propia entrada; sin ella todos los w2 se moverían igual.",rev:["gradiente","matriz"]}]},
+   {ctx:"gz1[i] = dL/dz1[i]  — atravesar la neurona oculta",pre:["cadena","tanh"],opts:[
+     {c:"g2 * p.w2[i] * (1 - hi*hi)"},
+     {c:"g2 * p.w2[i]",fix:"Olvidaste pasar por tanh. Su derivada es 1 − h². Este es el error más común de todos.",rev:["tanh","cadena"]},
+     {c:"g2 * hi * (1 - hi*hi)",fix:"La cadena pasa por w2 (cuánto pesa h[i] en la salida), no por h[i] mismo.",rev:["cadena"]}]},
+   {ctx:"W1[i] = …  — una fila de la jacobiana, con forma [·, ·]",pre:["jacobiana","gradiente"],opts:[
+     {c:"[g * x[0], g * x[1]]"},
+     {c:"[g * p.W1[i][0], g * p.W1[i][1]]",fix:"dz1/dW1[i][j] = x[j]: la entrada, no el peso. Igual que en w2, pero ahora hay dos entradas por fila.",rev:["jacobiana","gradiente"]},
+     {c:"[g, g]",fix:"Falta x[j]. La forma H×2 existe porque cada neurona tiene una derivada por cada entrada. Esto es la jacobiana.",rev:["jacobiana"]}]}]},
+ {id:"train",t:"4 · train",d:"mover θ en contra del gradiente",
+  code:`<span class="k">function</span> <span class="f">train</span>(p, data, steps, lr) {
+  <span class="k">const</span> hist = [];
+  <span class="k">for</span> (<span class="k">let</span> s = 0; s &lt; steps; s++) {
+    <span class="k">let</span> L = 0;
+    <span class="k">for</span> (<span class="k">const</span> [x, y, t] <span class="k">of</span> data) {
+      <span class="k">const</span> g = backward(p, [x, y], t);
+      L += loss(forward(p, [x, y]).o, t);
+      p.W1.forEach((w, i) => {
+        ⟦0⟧
+        p.b1[i] -= lr*g.b1[i]; p.w2[i] -= lr*g.w2[i];
+      });
+      p.b2 -= lr*g.b2;
+    }
+    hist.push(L / data.length);
+  }
+  <span class="k">return</span> hist;
+}`,
+  slots:[{ctx:"actualizar la fila i de W1",pre:["descenso"],opts:[
+     {c:"w[0] -= lr*g.W1[i][0]; w[1] -= lr*g.W1[i][1];"},
+     {c:"w[0] += lr*g.W1[i][0]; w[1] += lr*g.W1[i][1];",fix:"Con + subes por la pendiente: maximizas la pérdida. Descenso es restar.",rev:["descenso","gradiente"]},
+     {c:"w[0] = -lr*g.W1[i][0]; w[1] = -lr*g.W1[i][1];",fix:"Reemplazas el peso en vez de darle un paso. El gradiente dice hacia dónde moverte desde donde estás.",rev:["descenso"]}]}]},
+];
+const INIT=`function init(H){const r=()=>Math.random()*2-1;return{W1:Array.from({length:H},()=>[r(),r()]),b1:Array.from({length:H},()=>0),w2:Array.from({length:H},()=>r()),b2:0}}`;
+let cur=0,choice={},cursl=null,passed={},journal=[];
+try{const j=localStorage.getItem("pf-m-journal");if(j)journal=JSON.parse(j);const c=localStorage.getItem("pf-m-choice");if(c)choice=JSON.parse(c);const p=localStorage.getItem("pf-m-passed");if(p)passed=JSON.parse(p)}catch(e){}
+const save=()=>{try{localStorage.setItem("pf-m-journal",JSON.stringify(journal));localStorage.setItem("pf-m-choice",JSON.stringify(choice));localStorage.setItem("pf-m-passed",JSON.stringify(passed))}catch(e){}};
+const key=(s,i)=>S[s].id+":"+i;
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+function render(){
+  const st=S[cur];
+  document.getElementById("tabs").innerHTML=S.map((s,i)=>`<button class="${i===cur?"on":""} ${passed[s.id]?"ok":""}" data-i="${i}">${s.t}</button>`).join("");
+  document.getElementById("st").textContent=st.t;document.getElementById("sd").textContent=st.d;
+  document.getElementById("code").innerHTML=st.code.replace(/⟦(\d)⟧/g,(m,i)=>{const k=key(cur,+i),ch=choice[k];const o=ch!==undefined?st.slots[+i].opts[ch]:null;
+    return `<span class="slot ${o?"filled":""} ${o?(ch===0?"ok":"bad"):""} ${cursl===+i?"cur":""}" data-s="${i}">${o?esc(o.c):"elige…"}</span>`});
+  renderHelp();
+  document.getElementById("run").disabled=!st.slots.every((_,i)=>choice[key(cur,i)]!==undefined);
+  document.getElementById("res").innerHTML="";document.getElementById("vis").hidden=true;
+  renderJournal();
+}
+function renderHelp(){
+  const st=S[cur],h=document.getElementById("help");
+  const i=cursl??st.slots.findIndex((_,j)=>choice[key(cur,j)]===undefined);
+  const sl=st.slots[i>=0?i:0];const ch=choice[key(cur,i>=0?i:0)];
+  let html=`<div class="k2">acompañante · ${sl.ctx.split("—")[0].trim()}</div>`;
+  if(ch!==undefined&&ch!==0){const o=sl.opts[ch];html+=`<div class="fix"><p><b>Casi.</b> ${o.fix}</p></div><div class="k2">repasa</div><div class="chips">${o.rev.map(r=>`<button>${C[r].t}<small>${C[r].app}</small></button>`).join("")}</div>`}
+  else if(ch===0){html+=`<p>Correcto. ${sl.ctx.split("—")[1]||""}</p>`}
+  else{html+=`<p>¿No entiendes lo que ves en este hueco? Esto es lo que está detrás:</p><div class="chips">${sl.pre.map(r=>`<button>${C[r].t}<small>${C[r].app}</small></button>`).join("")}</div>`}
+  h.innerHTML=html;
+}
+function renderJournal(){const j=document.getElementById("journal");
+  j.innerHTML=journal.length?journal.slice().reverse().map(e=>`<div class="e"><span style="font-family:var(--ui);font-size:11px;color:var(--muted)">${e.t} · ${e.stage}</span><div><q>${esc(e.chosen)}</q></div><div class="a">${e.fix}</div></div>`).join(""):`<p class="empty">Aquí aparecen tus elecciones casi correctas, con su afinación. No escribes nada.</p>`}
+
+document.getElementById("tabs").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;cursl=null;render()}};
+document.getElementById("code").onclick=e=>{const s=e.target.closest(".slot");if(!s)return;cursl=+s.dataset.s;openSheet(cursl)};
+const sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim");
+let order=[];
+function openSheet(i){const sl=S[cur].slots[i];document.getElementById("shk").textContent="¿qué va aquí?";document.getElementById("shctx").textContent=sl.ctx;
+  order=[0,1,2].sort(()=>Math.random()-.5);
+  document.getElementById("opts").innerHTML=order.map(o=>`<button class="opt" data-o="${o}">${esc(sl.opts[o].c)}</button>`).join("");
+  sheet.classList.add("open");scrim.classList.add("on");render()}
+function closeSheet(){sheet.classList.remove("open");scrim.classList.remove("on")}
+scrim.onclick=closeSheet;
+document.getElementById("opts").onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const o=+b.dataset.o,sl=S[cur].slots[cursl];choice[key(cur,cursl)]=o;
+  if(o!==0){journal.push({t:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),stage:S[cur].t,chosen:sl.opts[o].c,fix:sl.opts[o].fix})}
+  save();closeSheet();render()};
+
+// ----- run: assemble real code and verify in a worker -----
+const WORKER=`
+let s=41;const rnd=()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296};
+const data=[];for(let k=0;k<130;k++){const x=rnd()*2-1,y=rnd()*2-1;data.push([x,y,x*x+y*y<0.4?1:0])}
+const H=4,sig=z=>1/(1+Math.exp(-z));
+function refForward(p,x){const h=p.W1.map((w,i)=>Math.tanh(w[0]*x[0]+w[1]*x[1]+p.b1[i]));return{h,o:sig(h.reduce((a,hi,i)=>a+p.w2[i]*hi,p.b2))}}
+function refLoss(o,t){return -(t*Math.log(o+1e-9)+(1-t)*Math.log(1-o+1e-9))}
+const close=(a,b,tol)=>Math.abs(a-b)<=tol*(1+Math.abs(b));
+onmessage=e=>{const{code,stage}=e.data;let F;try{F=new Function(code+"\\nreturn {forward,loss,backward,train,init};")()}catch(err){postMessage({ok:false,msg:"No compila: "+err.message});return}
+  const p0=F.init(H);
+  try{
+  if(stage==="forward"){for(const x of [[0.3,-0.2],[-0.7,0.5],[0,0.9]]){const r=F.forward(p0,x),ref=refForward(p0,x);const bad=r.h.findIndex((v,i)=>!close(v,ref.h[i],1e-6));if(bad>=0)throw new Error("h["+bad+"] = "+r.h[bad].toFixed(4)+", esperaba "+ref.h[bad].toFixed(4));if(!close(r.o,ref.o,1e-6))throw new Error("o = "+r.o.toFixed(4)+", esperaba "+ref.o.toFixed(4))}postMessage({ok:true,msg:"h y o correctos en 3 puntos de prueba"})}
+  if(stage==="loss"){for(const[o,t]of [[0.9,1],[0.1,0],[0.5,1],[0.02,1]]){const v=F.loss(o,t);if(!close(v,refLoss(o,t),1e-4))throw new Error("loss("+o+", "+t+") = "+v.toFixed(4)+", esperaba "+refLoss(o,t).toFixed(4))}postMessage({ok:true,msg:"coincide con −(t·ln o + (1−t)·ln(1−o))"})}
+  if(stage==="backward"){const x=[0.4,0.1],t=1,g=F.backward(p0,x,t),eps=1e-5,clone=p=>JSON.parse(JSON.stringify(p));let worst=0,where="";
+    const chk=(get,set,ana,name)=>{const q=clone(p0);set(q,get(q)+eps);const Lp=refLoss(refForward(q,x).o,t);set(q,get(q)-2*eps);const Lm=refLoss(refForward(q,x).o,t);const num=(Lp-Lm)/(2*eps);const d=Math.abs(num-ana)/(1+Math.abs(num));if(d>worst){worst=d;where=name+": tuyo "+ana.toFixed(5)+" · numérico "+num.toFixed(5)}};
+    for(let i=0;i<H;i++){for(let j=0;j<2;j++)chk(q=>q.W1[i][j],(q,v)=>q.W1[i][j]=v,g.W1[i][j],"W1["+i+"]["+j+"]");chk(q=>q.b1[i],(q,v)=>q.b1[i]=v,g.b1[i],"b1["+i+"]");chk(q=>q.w2[i],(q,v)=>q.w2[i]=v,g.w2[i],"w2["+i+"]")}chk(q=>q.b2,(q,v)=>q.b2=v,g.b2,"b2");
+    if(worst>1e-3)throw new Error("no coincide con diferencias finitas. Peor: "+where);postMessage({ok:true,msg:"19 derivadas parciales coinciden con diferencias finitas (error máx "+worst.toExponential(1)+")"})}
+  if(stage==="train"){const p=F.init(H);const hist=F.train(p,data,400,0.05);let err=0;for(const[x,y,t]of data){if((F.forward(p,[x,y]).o>0.5?1:0)!==t)err++}
+    const grid=[],G=60;for(let py=0;py<G;py++){const row=[];for(let px=0;px<G;px++)row.push(F.forward(p,[px/G*2-1,1-py/G*2]).o>0.5?1:0);grid.push(row)}
+    postMessage({ok:err<8,msg:err+" errores de 130 · pérdida "+hist[0].toFixed(3)+" → "+hist[hist.length-1].toFixed(3),grid,hist,data})}
+  }catch(err){postMessage({ok:false,msg:err.message})}};`;
+function assemble(){return INIT+"\n"+S.map((st,si)=>{let c=st.code.replace(/<[^>]+>/g,"").replace(/&gt;/g,">").replace(/&lt;/g,"<").replace(/&amp;/g,"&");return c.replace(/⟦(\d)⟧/g,(m,i)=>{const ch=choice[key(si,+i)];return ch===undefined?st.slots[+i].opts[0].c:st.slots[+i].opts[ch].c})}).join("\n")}
+document.getElementById("run").onclick=()=>{const w=new Worker(URL.createObjectURL(new Blob([WORKER],{type:"text/javascript"})));const res=document.getElementById("res");res.className="res";res.textContent="corriendo…";
+  const tm=setTimeout(()=>{w.terminate();res.className="res bad";res.textContent="Más de 15 s. ¿Loop infinito?"},15000);
+  w.onmessage=e=>{clearTimeout(tm);const m=e.data;res.className="res "+(m.ok?"ok":"bad");res.textContent=m.msg;if(m.ok){passed[S[cur].id]=true;save();document.getElementById("tabs").children[cur].classList.add("ok")}
+    if(m.grid){document.getElementById("vis").hidden=false;drawPlane(m.grid,m.data);drawLoss(m.hist)}};
+  w.postMessage({code:assemble(),stage:S[cur].id})};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function drawPlane(grid,data){const c=document.getElementById("plane").getContext("2d"),W=300,n=grid.length,cell=W/n;for(let r=0;r<n;r++)for(let k=0;k<n;k++){c.fillStyle=grid[r][k]?css("--accent-soft"):css("--off-soft");c.fillRect(k*cell,r*cell,cell+.5,cell+.5)}for(const[x,y,t]of data){c.beginPath();c.arc((x+1)/2*W,(1-y)/2*W,3,0,7);c.fillStyle=t?css("--accent"):css("--off");c.fill()}}
+function drawLoss(h){const c=document.getElementById("loss").getContext("2d"),W=300;c.clearRect(0,0,W,W);const mx=Math.max(...h),mn=Math.min(...h);c.strokeStyle=css("--accent");c.lineWidth=2.5;c.beginPath();h.forEach((v,i)=>{const x=20+i/(h.length-1)*(W-30),y=W-20-(v-mn)/(mx-mn+1e-9)*(W-40);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();c.fillStyle=css("--muted");c.font="11px "+css("--mono");c.fillText("pérdida "+mx.toFixed(2)+" → "+mn.toFixed(2),20,14)}
+render();
+</script>
+
+</body></html>

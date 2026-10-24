@@ -1,0 +1,246 @@
+<!doctype html><html lang="es" data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#12171D;color:#E8ECF0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Prueba de fuego</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Literata:opsz,wght@7..72,400;7..72,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: editor on the left, the four stages on the right as a checklist that unlocks in order; beneath them the plane painted by YOUR model and the console. Stacks on phone. */
+:root{
+  --bg:#E4E7E1; --surface:#F7F8F4; --fg:#1F2426; --muted:#5F6B66; --line:#C9CFC6; --ed:#1E2127; --edfg:#ECEDE6;
+  --accent:#3F3DAA; --accent-soft:#E0E0F5; --off:#B2375F; --off-soft:#F4DCE5; --ok:#5A7D0A; --ok-soft:#E5EDCF; --lock:#8E978F;
+  --a:#3F3DAA; --b:#B2375F;
+  --display:"Fraunces",Georgia,serif; --body:"Literata",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--ed:#121419;--edfg:#ECEDE6;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;--a:#8F8DF2;--b:#F27A9E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171C;--surface:#1E2127;--fg:#ECEDE6;--muted:#9AA29C;--line:#30343B;--ed:#121419;--edfg:#ECEDE6;--accent:#8F8DF2;--accent-soft:#2A2A5A;--off:#F27A9E;--off-soft:#4A1E2C;--ok:#B6D55A;--ok-soft:#2D3A14;--lock:#5F6670;--a:#8F8DF2;--b:#F27A9E;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:1100px;margin:0 auto}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(26px,4vw,34px);line-height:1.1;margin:0 0 4px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.lede{color:var(--muted);margin:0 0 18px;max-width:66ch}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.panel{min-width:0}
+.panel h2{font-family:system-ui,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center}
+
+/* CodeMirror 5 core (condensado) */
+.CodeMirror{font-family:var(--mono);font-size:13px;line-height:1.55;height:560px;color:var(--edfg);background:var(--ed);direction:ltr;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:10px}
+.CodeMirror-lines{padding:10px 0;cursor:text;min-height:1px}
+.CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like{padding:0 8px;border-radius:0;border-width:0;background:transparent;font-family:inherit;font-size:inherit;margin:0;white-space:pre;word-wrap:normal;line-height:inherit;color:inherit;z-index:2;position:relative;overflow:visible;-webkit-tap-highlight-color:transparent;font-variant-ligatures:contextual}
+.CodeMirror-scroll{overflow:scroll!important;margin-bottom:-50px;margin-right:-50px;padding-bottom:50px;height:100%;outline:none;position:relative;z-index:0}
+.CodeMirror-sizer{position:relative;border-right:50px solid transparent}
+.CodeMirror-vscrollbar,.CodeMirror-hscrollbar,.CodeMirror-scrollbar-filler,.CodeMirror-gutter-filler{position:absolute;z-index:6;display:none;outline:none}
+.CodeMirror-vscrollbar{right:0;top:0;overflow-x:hidden;overflow-y:scroll}
+.CodeMirror-hscrollbar{bottom:0;left:0;overflow-y:hidden;overflow-x:scroll}
+.CodeMirror-scrollbar-filler{right:0;bottom:0}.CodeMirror-gutter-filler{left:0;bottom:0}
+.CodeMirror-gutters{position:absolute;left:0;top:0;min-height:100%;z-index:3;border-right:1px solid var(--line);background:var(--ed);white-space:nowrap}
+.CodeMirror-gutter{white-space:normal;height:100%;display:inline-block;vertical-align:top;margin-bottom:-50px}
+.CodeMirror-gutter-wrapper{position:absolute;z-index:4;background:none!important;border:none!important}
+.CodeMirror-gutter-background{position:absolute;top:0;bottom:0;z-index:4}
+.CodeMirror-gutter-elt{position:absolute;cursor:default;z-index:4}
+.CodeMirror-linenumber{padding:0 6px 0 10px;min-width:20px;text-align:right;color:var(--muted);opacity:.6;white-space:nowrap}
+.CodeMirror-cursor{position:absolute;pointer-events:none;border-left:2px solid var(--edfg);border-right:none;width:0}
+.CodeMirror div.CodeMirror-secondarycursor{border-left:1px solid silver}
+.CodeMirror-measure{position:absolute;width:100%;height:0;overflow:hidden;visibility:hidden}
+.CodeMirror-measure pre{position:static}
+div.CodeMirror-cursors{visibility:hidden;position:relative;z-index:3}
+div.CodeMirror-dragcursors,.CodeMirror-focused div.CodeMirror-cursors{visibility:visible}
+.CodeMirror-selected{background:rgba(143,141,242,.28)}
+.CodeMirror-focused .CodeMirror-selected,.CodeMirror-line::selection,.CodeMirror-line>span::selection,.CodeMirror-line>span>span::selection{background:rgba(143,141,242,.35)}
+.CodeMirror-code{outline:none}
+.CodeMirror-scroll,.CodeMirror-sizer,.CodeMirror-gutter,.CodeMirror-gutters,.CodeMirror-linenumber{box-sizing:content-box}
+.CodeMirror-wrap pre.CodeMirror-line,.CodeMirror-wrap pre.CodeMirror-line-like{word-wrap:break-word;white-space:pre-wrap;word-break:normal}
+.CodeMirror-linebackground{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0}
+.CodeMirror-linewidget{position:relative;z-index:2;padding:.1px}
+.CodeMirror-rtl pre{direction:rtl}
+.CodeMirror-matchingbracket{outline:1px solid var(--accent);border-radius:2px}
+.CodeMirror-nonmatchingbracket{color:var(--off)}
+.CodeMirror-focused{border-color:var(--accent)}
+.CodeMirror-activeline-background{background:rgba(255,255,255,.04)}
+/* tema con la paleta */
+.cm-s-la .cm-keyword{color:#8F8DF2}.cm-s-la .cm-def{color:#B6D55A}.cm-s-la .cm-variable{color:var(--edfg)}
+.cm-s-la .cm-variable-2{color:#C9CBF0}.cm-s-la .cm-property{color:#E0E0F5}.cm-s-la .cm-number{color:#F2B35A}
+.cm-s-la .cm-string{color:#F27A9E}.cm-s-la .cm-operator{color:#9AA29C}.cm-s-la .cm-comment{color:#7E8A84;font-style:italic}
+.cm-s-la .cm-atom{color:#F2B35A}
+
+textarea{width:100%;box-sizing:border-box;height:560px;background:var(--ed);color:var(--edfg);border:1px solid var(--line);border-radius:10px;padding:14px;font:13px/1.5 var(--mono);resize:vertical;tab-size:2;outline:none}
+textarea:focus{border-color:var(--accent)}
+.tools{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.tools button{font:500 13px system-ui,sans-serif;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tools button.p{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tools .k{font:12px var(--mono);color:var(--muted)}
+.stages{display:flex;flex-direction:column;gap:6px}
+.s{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.s .i{width:18px;height:18px;border-radius:50%;border:2px solid var(--lock);margin-top:2px;font:600 11px system-ui;display:flex;align-items:center;justify-content:center;color:var(--bg)}
+.s.ok .i{background:var(--ok);border-color:var(--ok)}.s.ok .i::after{content:"✓"}
+.s.bad .i{background:var(--off);border-color:var(--off)}.s.bad .i::after{content:"!"}
+.s.run .i{border-color:var(--accent);border-style:dashed}
+.s .t{font-family:var(--display);font-size:16px}
+.s .d{font-size:13px;color:var(--muted)}
+.s .r{font:12px var(--mono);margin-top:4px;white-space:pre-wrap;word-break:break-word}
+.s.ok .r{color:var(--ok)}.s.bad .r{color:var(--off)}
+.vis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:420px){.vis{grid-template-columns:1fr}}
+canvas{width:100%;aspect-ratio:1;display:block;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.cap{font-family:system-ui,sans-serif;font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
+.con{margin-top:10px;background:var(--ed);color:var(--edfg);border-radius:8px;padding:10px 12px;font:12px/1.5 var(--mono);min-height:60px;max-height:160px;overflow:auto;white-space:pre-wrap}
+.con .e{color:var(--off)}
+.win{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--ok-soft);font-size:14px}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<main>
+<p class="eyebrow">Learn Anything · prototipo 4 · prueba de fuego</p>
+<h1>Escribe la red que moviste con las manos.</h1>
+<p class="lede">La misma red de dos capas del juego, pero ahora en código, sin librerías. Cuatro funciones. Cada una se verifica contra la matemática, no contra una respuesta guardada: tus gradientes se comparan con derivadas numéricas, y el plano se pinta con <em>tu</em> modelo.</p>
+<div class="grid">
+  <div class="panel">
+    <h2>tu código <span style="font-family:var(--mono);text-transform:none;letter-spacing:0">JavaScript</span></h2>
+    <textarea id="code" spellcheck="false"></textarea>
+    <div class="tools"><button class="p" id="run">▶ correr</button><button id="hint">pista para la etapa actual</button><button id="restart">reiniciar código</button><span class="k">⌘/Ctrl + Enter</span></div>
+    <div class="con" id="con">// la salida de console.log aparece aquí</div>
+  </div>
+  <div class="panel">
+    <h2>etapas</h2>
+    <div class="stages" id="stages"></div>
+    <div class="vis">
+      <div><canvas id="plane" width="400" height="400"></canvas><div class="cap">plano pintado por tu modelo</div></div>
+      <div><canvas id="loss" width="400" height="400"></canvas><div class="cap">pérdida durante tu entrenamiento</div></div>
+    </div>
+    <div class="win" id="win" hidden></div>
+  </div>
+</div>
+</main>
+<script>
+const STARTER=`// Datos: puntos (x, y) con etiqueta t ∈ {0, 1}. Clase 1 = dentro del círculo.
+// Tienes disponibles: data = [[x, y, t], ...] y H = número de neuronas ocultas.
+// Parámetros: W1 es H×2, b1 es H, w2 es H, b2 es número.
+
+function init(H) {
+  const r = () => Math.random() * 2 - 1;
+  return {
+    W1: Array.from({ length: H }, () => [r(), r()]),
+    b1: Array.from({ length: H }, () => 0),
+    w2: Array.from({ length: H }, () => r()),
+    b2: 0,
+  };
+}
+
+// 1 · forward: devuelve { h, o }
+//    h[i] = tanh(W1[i]·x + b1[i])     (una recta por neurona, doblada)
+//    o    = sigmoid(w2·h + b2)        (la recta en el espacio doblado)
+function forward(p, x) {
+  // TODO
+}
+
+// 2 · loss: entropía cruzada binaria para una predicción o y etiqueta t
+//    L = -( t·ln(o) + (1-t)·ln(1-o) )
+function loss(o, t) {
+  // TODO
+}
+
+// 3 · backward: devuelve gradientes con la MISMA forma que p
+//    { W1: H×2, b1: H, w2: H, b2: número }
+//    Pista: dL/dz2 = o - t. Luego la regla de la cadena hacia atrás.
+function backward(p, x, t) {
+  // TODO
+}
+
+// 4 · train: aplica gradient descent sobre todos los puntos
+//    durante \`steps\` pasadas con tasa \`lr\`. Devuelve la pérdida media de cada pasada.
+function train(p, data, steps, lr) {
+  // TODO
+}
+`;
+const STAGES=[
+  {id:"forward",t:"1 · forward",d:"Que h y o salgan con la forma y los valores correctos."},
+  {id:"loss",t:"2 · loss",d:"Un número que mide qué tan mal salió o."},
+  {id:"backward",t:"3 · backward",d:"Tus gradientes contra derivadas numéricas (diferencias finitas)."},
+  {id:"train",t:"4 · train",d:"El plano se pinta solo con tu modelo. Meta: < 8 errores de 130."},
+];
+const HINTS={
+  forward:"const sig = z => 1/(1+Math.exp(-z));\nconst h = p.W1.map((w, i) => Math.tanh(w[0]*x[0] + w[1]*x[1] + p.b1[i]));\nconst z2 = h.reduce((s, hi, i) => s + p.w2[i]*hi, p.b2);\nreturn { h, o: sig(z2) };",
+  loss:"const e = 1e-9;\nreturn -(t*Math.log(o+e) + (1-t)*Math.log(1-o+e));",
+  backward:"const { h, o } = forward(p, x);\nconst g2 = o - t;                       // dL/dz2\nconst gw2 = h.map(hi => g2*hi);         // dL/dw2\nconst gh  = p.w2.map(w => g2*w);        // dL/dh\nconst gz1 = gh.map((g, i) => g*(1 - h[i]*h[i]));  // tanh'\nreturn {\n  W1: gz1.map(g => [g*x[0], g*x[1]]),\n  b1: gz1,\n  w2: gw2,\n  b2: g2,\n};",
+  train:"const hist = [];\nfor (let s = 0; s < steps; s++) {\n  let L = 0;\n  for (const [x, y, t] of data) {\n    const g = backward(p, [x, y], t);\n    L += loss(forward(p, [x, y]).o, t);\n    p.W1.forEach((w, i) => { w[0] -= lr*g.W1[i][0]; w[1] -= lr*g.W1[i][1]; p.b1[i] -= lr*g.b1[i]; p.w2[i] -= lr*g.w2[i]; });\n    p.b2 -= lr*g.b2;\n  }\n  hist.push(L / data.length);\n}\nreturn hist;",
+};
+const ta=document.getElementById("code"),con=document.getElementById("con"),stEl=document.getElementById("stages");
+ta.value=STARTER;
+try{const s=localStorage.getItem("pf-code");if(s)ta.value=s}catch(e){}
+let cm=null;
+if(window.CodeMirror){cm=CodeMirror.fromTextArea(ta,{mode:"javascript",theme:"la",lineNumbers:true,indentUnit:2,tabSize:2,indentWithTabs:false,autoCloseBrackets:true,matchBrackets:true,lineWrapping:false,
+  extraKeys:{"Cmd-Enter":run,"Ctrl-Enter":run,Tab:c=>c.somethingSelected()?c.indentSelection("add"):c.replaceSelection("  ","end")}});
+  cm.on("change",()=>{try{localStorage.setItem("pf-code",cm.getValue())}catch(e){}})}
+else{ta.addEventListener("input",()=>{try{localStorage.setItem("pf-code",ta.value)}catch(e){}});
+  ta.addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart;ta.setRangeText("  ",s,ta.selectionEnd,"end")}if((e.metaKey||e.ctrlKey)&&e.key==="Enter")run()})}
+const getCode=()=>cm?cm.getValue():ta.value,setCode=v=>{cm?cm.setValue(v):ta.value=v};
+stEl.innerHTML=STAGES.map(s=>`<div class="s" id="s-${s.id}"><div class="i"></div><div><div class="t">${s.t}</div><div class="d">${s.d}</div><div class="r"></div></div></div>`).join("");
+let current="forward";
+document.getElementById("hint").onclick=()=>{log("// pista · "+current+"\n"+HINTS[current])};
+document.getElementById("restart").onclick=()=>{setCode(STARTER);try{localStorage.removeItem("pf-code")}catch(e){}};
+document.getElementById("run").onclick=run;
+function log(s,err){con.innerHTML+=(err?`<span class="e">${esc(s)}</span>`:esc(s))+"\n";con.scrollTop=con.scrollHeight}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// ---------- worker: runs user code + checks ----------
+const WORKER=`
+let s=41;const rnd=()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296};
+const data=[];for(let k=0;k<130;k++){const x=rnd()*2-1,y=rnd()*2-1;data.push([x,y,x*x+y*y<0.4?1:0])}
+const H=4;
+const console={log:(...a)=>postMessage({log:a.map(v=>typeof v==="object"?JSON.stringify(v):String(v)).join(" ")})};
+const sig=z=>1/(1+Math.exp(-z));
+function refForward(p,x){const h=p.W1.map((w,i)=>Math.tanh(w[0]*x[0]+w[1]*x[1]+p.b1[i]));return{h,o:sig(h.reduce((a,hi,i)=>a+p.w2[i]*hi,p.b2))}}
+function refLoss(o,t){return -(t*Math.log(o+1e-9)+(1-t)*Math.log(1-o+1e-9))}
+const close=(a,b,tol)=>Math.abs(a-b)<=tol*(1+Math.abs(b));
+onmessage=e=>{
+  const res={};const code=e.data;
+  let forward,loss,backward,train,init;
+  try{({forward,loss,backward,train,init}=new Function("data","H","console",code+"\\nreturn {forward,loss,backward,train,init};")(data,H,console))}catch(err){postMessage({fatal:"No compila: "+err.message});return}
+  const p0=init(H);
+  // 1 forward
+  try{for(const x of [[0.3,-0.2],[-0.7,0.5],[0,0.9]]){const r=forward(p0,x);if(!r||!Array.isArray(r.h)||r.h.length!==H)throw new Error("debe devolver { h: array de "+H+", o: número }");
+    const ref=refForward(p0,x);let bad=r.h.findIndex((v,i)=>!close(v,ref.h[i],1e-6));if(bad>=0)throw new Error("h["+bad+"] = "+r.h[bad].toFixed(4)+", esperaba "+ref.h[bad].toFixed(4)+" en x = ["+x+"]");
+    if(!close(r.o,ref.o,1e-6))throw new Error("o = "+r.o+", esperaba "+ref.o.toFixed(4)+" en x = ["+x+"]")}res.forward={ok:true,msg:"h y o correctos en 3 puntos de prueba"}}catch(err){res.forward={ok:false,msg:err.message}}
+  // 2 loss
+  if(res.forward.ok)try{const cases=[[0.9,1],[0.1,0],[0.5,1],[0.02,1]];for(const[o,t]of cases){const v=loss(o,t);if(typeof v!=="number"||isNaN(v))throw new Error("debe devolver un número");if(!close(v,refLoss(o,t),1e-4))throw new Error("loss("+o+", "+t+") = "+v.toFixed(4)+", esperaba "+refLoss(o,t).toFixed(4))}
+    res.loss={ok:true,msg:"coincide con -(t·ln o + (1-t)·ln(1-o)); loss(0.02, 1) = "+refLoss(0.02,1).toFixed(2)+" castiga fuerte el error confiado"}}catch(err){res.loss={ok:false,msg:err.message}}
+  // 3 backward: numerical gradient check
+  if(res.loss&&res.loss.ok)try{const x=[0.4,0.1],t=1;const g=backward(p0,x,t);if(!g||!g.W1||!g.b1||!g.w2||g.b2===undefined)throw new Error("debe devolver { W1, b1, w2, b2 } con la forma de p");
+    const eps=1e-5,clone=p=>JSON.parse(JSON.stringify(p));let worst=0,where="";
+    const chk=(get,set,ana,name)=>{const q=clone(p0);set(q,get(q)+eps);const Lp=refLoss(refForward(q,x).o,t);set(q,get(q)-2*eps);const Lm=refLoss(refForward(q,x).o,t);const num=(Lp-Lm)/(2*eps);const d=Math.abs(num-ana)/(1+Math.abs(num));if(d>worst){worst=d;where=name+": tuyo "+ana.toFixed(5)+" · numérico "+num.toFixed(5)}};
+    for(let i=0;i<H;i++){for(let j=0;j<2;j++)chk(q=>q.W1[i][j],(q,v)=>q.W1[i][j]=v,g.W1[i][j],"W1["+i+"]["+j+"]");chk(q=>q.b1[i],(q,v)=>q.b1[i]=v,g.b1[i],"b1["+i+"]");chk(q=>q.w2[i],(q,v)=>q.w2[i]=v,g.w2[i],"w2["+i+"]")}
+    chk(q=>q.b2,(q,v)=>q.b2=v,g.b2,"b2");
+    if(worst>1e-3)throw new Error("gradiente no coincide con diferencias finitas. Peor: "+where);res.backward={ok:true,msg:"19 derivadas parciales coinciden con diferencias finitas (error máx "+worst.toExponential(1)+")"}}catch(err){res.backward={ok:false,msg:err.message}}
+  // 4 train
+  if(res.backward&&res.backward.ok)try{const p=init(H);const t0=Date.now();const hist=train(p,data,400,0.05);if(!Array.isArray(hist)||hist.length!==400)throw new Error("debe devolver un array con la pérdida media de cada una de las 400 pasadas");
+    let err=0;for(const[x,y,t]of data){if((forward(p,[x,y]).o>0.5?1:0)!==t)err++}
+    const grid=[];const S=80;for(let py=0;py<S;py++){const row=[];for(let px=0;px<S;px++){row.push(forward(p,[px/S*2-1,1-py/S*2]).o>0.5?1:0)}grid.push(row)}
+    res.train={ok:err<8,msg:(err<8?"":"todavía ")+err+" errores de 130 · pérdida "+hist[0].toFixed(3)+" → "+hist[hist.length-1].toFixed(3)+" en "+(Date.now()-t0)+" ms",hist,grid,err}}catch(err){res.train={ok:false,msg:err.message}}
+  postMessage({res,data});
+};`;
+let worker=null;
+function run(){con.innerHTML="";if(worker)worker.terminate();worker=new Worker(URL.createObjectURL(new Blob([WORKER],{type:"text/javascript"})));
+  STAGES.forEach(s=>{const el=document.getElementById("s-"+s.id);el.className="s run";el.querySelector(".r").textContent=""});
+  const timer=setTimeout(()=>{worker.terminate();log("Se tardó más de 15 s. ¿Un loop infinito en train?",true)},15000);
+  worker.onmessage=e=>{const m=e.data;if(m.log!==undefined){log(m.log);return}clearTimeout(timer);
+    if(m.fatal){log(m.fatal,true);STAGES.forEach(s=>document.getElementById("s-"+s.id).className="s");return}
+    let firstFail=null;STAGES.forEach(s=>{const r=m.res[s.id],el=document.getElementById("s-"+s.id);if(!r){el.className="s";return}el.className="s "+(r.ok?"ok":"bad");el.querySelector(".r").textContent=r.msg;if(!r.ok&&!firstFail)firstFail=s.id});
+    current=firstFail||"train";
+    if(m.res.train&&m.res.train.grid){drawPlane(m.res.train.grid,m.data);drawLoss(m.res.train.hist)}
+    const win=document.getElementById("win");win.hidden=!(m.res.train&&m.res.train.ok);if(!win.hidden)win.textContent="Construiste la red completa sin librerías. Lo que moviste con las manos el martes, ahora lo escribiste. Siguiente: explica por qué el gradiente de W1 lleva un (1 − h²)."};
+  worker.onerror=e=>{clearTimeout(timer);log("Error: "+e.message,true)};
+  worker.postMessage(getCode())}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function drawPlane(grid,data){const c=document.getElementById("plane").getContext("2d"),S=400,n=grid.length,cell=S/n;c.clearRect(0,0,S,S);
+  for(let r=0;r<n;r++)for(let k=0;k<n;k++){c.fillStyle=grid[r][k]?css("--accent-soft"):css("--off-soft");c.fillRect(k*cell,r*cell,cell+0.5,cell+0.5)}
+  for(const[x,y,t]of data){c.beginPath();c.arc((x+1)/2*S,(1-y)/2*S,4,0,7);c.fillStyle=t?css("--a"):css("--b");c.fill()}}
+function drawLoss(h){const c=document.getElementById("loss").getContext("2d"),S=400;c.clearRect(0,0,S,S);const mx=Math.max(...h),mn=Math.min(...h);
+  c.strokeStyle=css("--line");c.lineWidth=1;for(let g=1;g<4;g++){c.beginPath();c.moveTo(30,S-30-g*(S-60)/4);c.lineTo(S-10,S-30-g*(S-60)/4);c.stroke()}
+  c.strokeStyle=css("--accent");c.lineWidth=2.5;c.beginPath();h.forEach((v,i)=>{const x=30+i/(h.length-1)*(S-40),y=S-30-(v-mn)/(mx-mn+1e-9)*(S-60);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+  c.fillStyle=css("--muted");c.font="12px "+css("--mono");c.fillText(mx.toFixed(2),4,36);c.fillText(mn.toFixed(2),4,S-28);c.fillText("pasadas →",S-90,S-10)}
+// empty-state drawings
+(function(){const c=document.getElementById("plane").getContext("2d");c.fillStyle=css("--muted");c.font="13px system-ui";c.textAlign="center";c.fillText("aparece cuando train pase",200,205);const l=document.getElementById("loss").getContext("2d");l.fillStyle=css("--muted");l.font="13px system-ui";l.textAlign="center";l.fillText("aparece cuando train pase",200,205)})();
+</script>
+
+</body></html>

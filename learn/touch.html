@@ -1,0 +1,151 @@
+<!doctype html><html lang="es" data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#12171D;color:#E8ECF0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Toca donde te pierdes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=STIX+Two+Text:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow reading column; explanations open in place, indented one step per level, so the thread stays on screen. */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --fg:#17202A; --muted:#5B6673; --line:#D6DCE3;
+  --accent:#0E7C7B; --accent-soft:#E1F1F0; --ok:#2E7D4F; --ok-soft:#E3F2E8; --lost:#B8471F; --lost-soft:#F9E7DF;
+  --display:"Fraunces",Georgia,serif; --body:"Literata",Georgia,serif; --math:"STIX Two Text","Times New Roman",serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171D; --surface:#1A2129; --fg:#E8ECF0; --muted:#97A3B0; --line:#2C3640;
+  --accent:#4FC3BF; --accent-soft:#163A39; --ok:#6CCB8F; --ok-soft:#1C3A28; --lost:#F0905F; --lost-soft:#432518; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171D; --surface:#1A2129; --fg:#E8ECF0; --muted:#97A3B0; --line:#2C3640;
+  --accent:#4FC3BF; --accent-soft:#163A39; --ok:#6CCB8F; --ok-soft:#1C3A28; --lost:#F0905F; --lost-soft:#432518; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16.5px;line-height:1.6;
+  padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:640px;margin:0 auto}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(28px,5vw,38px);line-height:1.1;margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 28px;max-width:60ch}
+.lede b{color:var(--fg);font-weight:500}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+
+.lesson{display:flex;flex-direction:column;gap:6px}
+.line{position:relative;border-left:3px solid var(--line);padding:10px 12px 10px 16px;border-radius:0 8px 8px 0;transition:background .2s,border-color .2s}
+.line .n{font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.line .txt{display:block}
+.line .lost-btn{position:absolute;right:8px;top:8px;font:500 11px/1 var(--body);letter-spacing:.04em;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:99px;padding:6px 9px;cursor:pointer;opacity:.75}
+.line .lost-btn:hover,.line .lost-btn:focus-visible{opacity:1;color:var(--lost);border-color:var(--lost);outline:none}
+.line.followed{border-left-color:var(--ok);background:var(--ok-soft)}
+.line.followed .n::after{content:" · seguido";color:var(--ok)}
+.line.lost{border-left-color:var(--lost);background:var(--lost-soft)}
+.line.lost .n::after{content:" · aquí me perdí";color:var(--lost)}
+.line.after{opacity:.4}
+.line.after .lost-btn{display:none}
+
+code,.m{font-family:var(--math);font-size:1.05em;font-style:italic}
+code t{font-style:italic}
+.exp code{font-family:var(--mono);font-style:normal;font-size:.9em}
+t{cursor:pointer;border-bottom:1.5px dotted var(--accent);padding:0 1px;border-radius:2px;transition:background .15s}
+t:hover,t:focus-visible{background:var(--accent-soft);outline:none}
+t.open{background:var(--accent);color:var(--bg);border-bottom-color:transparent}
+
+.exp{margin:8px 0 2px 0;padding:10px 12px 10px 14px;border-left:2px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;font-size:15px}
+.exp .exp{margin-left:10px;font-size:14px}
+.exp .tag{font-family:var(--mono);font-size:11px;color:var(--accent);display:block;margin-bottom:4px}
+.exp p{margin:0 0 8px}.exp p:last-child{margin:0}
+.exp .end{color:var(--muted);font-size:12px;font-style:italic}
+
+.diag{margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.diag h2{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 6px}
+.diag p{margin:0 0 8px}.diag p:last-child{margin:0}
+.diag .path{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.diag .path span{font-family:var(--mono);font-size:12px;padding:5px 9px;border-radius:6px;background:var(--accent-soft);color:var(--fg)}
+.diag .path span.gap{background:var(--lost-soft);color:var(--lost);font-weight:500}
+.hint{margin-top:26px;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.hint button{background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:0;text-decoration:underline}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main>
+<p class="eyebrow">Learn Anything · prototipo 0 · redes neuronales</p>
+<h1>Toca donde te pierdes.</h1>
+<p class="lede">Cinco líneas, las mismas que un profe diría en dos minutos. <b>Toca cualquier símbolo</b> que no entiendas y se abre justo ahí. Toca <b>“me perdí”</b> en una línea y el sistema trabaja hacia atrás.</p>
+
+<div class="lesson" id="lesson">
+  <div class="line" data-i="1"><span class="n">1</span><span class="txt">Una capa es una función: <code><t data-k="h">h</t> <t data-k="eq">=</t> <t data-k="f">f</t>(<t data-k="x">x</t>)</code>.</span><button class="lost-btn" data-lost="1">me perdí</button></div>
+  <div class="line" data-i="2"><span class="n">2</span><span class="txt">Una red es <t data-k="comp">composición</t> de capas: <code>y = f₃(f₂(f₁(x)))</code>.</span><button class="lost-btn" data-lost="2">me perdí</button></div>
+  <div class="line" data-i="3"><span class="n">3</span><span class="txt">Entrenar es elegir los <t data-k="theta">parámetros θ</t> para que la <t data-k="loss">pérdida L</t> sea pequeña.</span><button class="lost-btn" data-lost="3">me perdí</button></div>
+  <div class="line" data-i="4"><span class="n">4</span><span class="txt">Para saber cómo mover θ₁ se usa la <t data-k="chain">regla de la cadena</t>: <code><t data-k="partial">∂L/∂θ₁</t> = ∂L/∂y · ∂y/∂h₂ · ∂h₂/∂h₁ · ∂h₁/∂θ₁</code>.</span><button class="lost-btn" data-lost="4">me perdí</button></div>
+  <div class="line" data-i="5"><span class="n">5</span><span class="txt"><t data-k="backprop">Backprop</t> es calcular esos factores una vez, desde la salida, y reutilizarlos hacia atrás.</span><button class="lost-btn" data-lost="5">me perdí</button></div>
+</div>
+
+<div class="diag" id="diag" hidden></div>
+
+<p class="hint"><span>Nivel 1 = la explicación de ese símbolo en este contexto. Nivel 2 = la mecánica debajo.</span><button id="reset">reiniciar</button></p>
+</main>
+
+<script>
+const EXP = {
+  h:{tag:"h · variable de salida",html:`<p>Solo un nombre para guardar lo que regresa la función. Como <code>const h = f(x)</code> en JS. Podría llamarse <code>salida</code>.</p><p>Lo distinto de tu intuición de código: <t data-k="vec">h no es un número, es una lista de números</t>.</p>`},
+  eq:{tag:"= · asignación, no ecuación",html:`<p>Aquí el <code>=</code> no es “comprueba que son iguales”, es “llama a f con x y guarda el resultado en h”. Lectura de izquierda a derecha, como en código.</p>`},
+  f:{tag:"f · la función (la capa)",html:`<p><code>f</code> no significa nada especial; es el nombre de una función. Podría llamarse <code>capa1</code>.</p><p>Por dentro, esta función hace tres cosas: <t data-k="inner">multiplica por pesos, suma un sesgo, aplica algo no lineal</t>. Para esta línea no importa qué hay dentro, igual que no lees el cuerpo de <code>f</code> para entender que entra x y sale h.</p>`},
+  x:{tag:"x · la entrada",html:`<p>Lo que le pasas a la función. En una red, <code>x</code> es <t data-k="vec">un vector</t>: una lista de números, por ejemplo los 784 pixeles de una imagen.</p>`},
+  vec:{tag:"vector · lista de números",html:`<p>Un vector aquí es literalmente <code>[2, 3]</code> o <code>[0.1, 0.9, -4]</code>. Nada más. Una función que recibe vector y devuelve vector es <code>(x: number[]) => number[]</code>.</p><p class="end">Mecánica base. Si esto es claro, puedes subir.</p>`},
+  inner:{tag:"dentro de f · una neurona",html:`<p><code>z = 0.5·x[0] + (-1)·x[1] + 0.1</code> y luego <code>h = max(0, z)</code>. Los números 0.5, -1 y 0.1 son los <t data-k="theta">parámetros</t>. Una capa de 4 neuronas es esto cuatro veces con pesos distintos, por eso h sale con 4 números.</p>`},
+  comp:{tag:"composición · pipeline",html:`<p>La salida de una función es la entrada de la siguiente: <code>f3(f2(f1(x)))</code>. En código: <code>const y = f3(f2(f1(x)))</code>.</p><p>¿Por qué encadenar? Porque <t data-k="why">una sola capa es poco expresiva</t>.</p>`},
+  why:{tag:"por qué varias capas",html:`<p>Una sola “matriz + no linealidad” solo puede dibujar fronteras muy simples entre clases. Componer varias permite fronteras curvas y complicadas. Es lo mismo que una sola <code>if</code> vs. varias anidadas.</p><p class="end">Mecánica base.</p>`},
+  theta:{tag:"θ · los parámetros",html:`<p>Los números fijos que viven dentro de cada <code>f</code> (pesos y sesgos). Antes de entrenar son aleatorios. Entrenar es moverlos. <code>θ</code> es solo el nombre colectivo de todos ellos.</p>`},
+  loss:{tag:"L · la pérdida",html:`<p>Un solo número que mide qué tan mal salió <code>y</code> comparado con lo que querías. Por ejemplo <code>(y − y_real)²</code>. Todo el entrenamiento es: <t data-k="opt">haz que este número baje</t>.</p>`},
+  opt:{tag:"optimización · la meta real",html:`<p>Olvida redes un segundo. Tienes una función <code>L(θ)</code> que regresa un número y quieres los θ que lo hagan mínimo. Eso es todo lo que “estás haciendo”. La red es solo la forma que tiene L por dentro.</p><p class="end">Mecánica base.</p>`},
+  chain:{tag:"regla de la cadena",html:`<p>Cálculo de primer semestre: si <code>y = f(g(x))</code>, entonces <code>dy/dx = f'(g(x)) · g'(x)</code>. Derivada de afuera por derivada de adentro.</p><p>Con tres capas es el producto de tres factores. Con vectores, <t data-k="jac">cada factor es una matriz, no un número</t>.</p>`},
+  jac:{tag:"jacobiana · derivada de vector a vector",html:`<p>Si una función recibe 3 números y devuelve 2, su “derivada” tiene que decir cómo cambia cada salida respecto a cada entrada: 2×3 = 6 números, en una matriz. Así que la regla de la cadena se vuelve multiplicar matrices, y el orden importa.</p><p class="end">Aquí es donde la mayoría se pierde, y es la antesala de tensores.</p>`},
+  partial:{tag:"∂L/∂θ₁ · gradiente",html:`<p>“Si muevo un poquito θ₁, ¿cuánto cambia L?”. Es la pendiente. Si es positiva, bajas θ₁; si es negativa, lo subes. Eso es gradient descent.</p>`},
+  backprop:{tag:"backprop · regla de la cadena con caché",html:`<p>No es un algoritmo nuevo. Los productos de la línea 4 comparten factores: <code>∂L/∂y · ∂y/∂h₂</code> aparece tanto para θ₂ como para θ₁. Si empiezas desde la salida, calculas cada factor una vez y lo reutilizas. De ahí “back”.</p>`}
+};
+
+const DIAG = {
+  1:{gapIdx:0,follow:"Nada todavía. Te perdiste en la primera línea.",gap:"notación",text:"Cuando la primera línea ya pierde, casi nunca es un problema de redes. Es que las letras no tienen contexto: no sabes cuál es nombre de función, cuál es variable, ni qué tipo de cosa entra y sale.",path:["qué es una función en código","vector = lista de números","h = f(x)"]},
+  2:{gapIdx:1,follow:"Seguiste que una capa es una función.",gap:"composición",text:"Entiendes f(x) pero f₃(f₂(f₁(x))) te saca. La mecánica que falta es ver anidamiento como pipeline: la salida de una es la entrada de otra. No hay nada nuevo en la línea 2 que no esté en la 1, salvo repetirla.",path:["h = f(x)","salida de una → entrada de otra","f₃(f₂(f₁(x)))"]},
+  3:{gapIdx:1,follow:"Seguiste capas y composición.",gap:"optimización",text:"El hueco probable no es θ ni L, es la meta: nadie te dijo que todo esto es “encuentra números que hagan pequeño un número”. Sin esa meta, θ y L parecen símbolos sueltos.",path:["L(θ) devuelve un número","minimizar ese número","parámetros θ","pérdida L"]},
+  4:{gapIdx:1,follow:"Seguiste hasta la meta de entrenar.",gap:"jacobiana",text:"Te perdiste en la regla de la cadena. Apuesta: dominas la regla de la cadena en una variable, pero el salto a derivadas que son matrices y se multiplican en orden es donde se rompe. Ese mismo salto es el que desbloquea tensores.",path:["regla de la cadena en 1 variable","derivada vector→vector = matriz","producto de matrices, orden importa","∂L/∂θ₁"]},
+  5:{gapIdx:1,follow:"Seguiste hasta la regla de la cadena.",gap:"reutilización",text:"Si la línea 4 fue clara, backprop no debería ser un concepto nuevo. Lo que falta es ver que los productos comparten factores. Es memoización, igual que en programación dinámica.",path:["producto de factores","factores repetidos","calcular una vez desde la salida","backprop"]}
+};
+
+const lesson=document.getElementById("lesson"), diag=document.getElementById("diag");
+
+function depthOf(el){let d=0;while((el=el.parentElement)&&el!==lesson){if(el.classList.contains("exp"))d++;}return d;}
+
+lesson.addEventListener("click",e=>{
+  const t=e.target.closest("t");
+  if(t){
+    if(t.classList.contains("open")){t.classList.remove("open");t._exp?.remove();t._exp=null;return;}
+    if(depthOf(t)>=2)return;
+    const k=t.dataset.k, d=EXP[k]; if(!d)return;
+    const box=document.createElement("div");box.className="exp";
+    box.innerHTML=`<span class="tag">${d.tag}</span>${d.html}`;
+    const host=t.closest(".exp")||t.closest(".line");
+    host.appendChild(box);
+    t.classList.add("open");t._exp=box;
+    return;
+  }
+  const b=e.target.closest("[data-lost]");
+  if(b)markLost(+b.dataset.lost);
+});
+
+function markLost(i){
+  lesson.querySelectorAll(".line").forEach(l=>{
+    const n=+l.dataset.i;l.classList.remove("followed","lost","after");
+    l.classList.add(n<i?"followed":n===i?"lost":"after");
+  });
+  const d=DIAG[i];
+  diag.hidden=false;
+  diag.innerHTML=`<p class="eyebrow">diagnóstico · hacia atrás</p><h2>${d.follow}</h2><p>${d.text}</p>
+  <div class="path">${d.path.map((p,j)=>`<span class="${j===d.gapIdx?"gap":""}">${p}</span>`).join("")}</div>
+  <p class="end" style="margin-top:10px;color:var(--muted);font-size:13px">Toca los símbolos de las líneas verdes si quieres confirmar que sí las seguías.</p>`;
+  diag.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+document.getElementById("reset").onclick=()=>{
+  lesson.querySelectorAll(".exp").forEach(x=>x.remove());
+  lesson.querySelectorAll("t.open").forEach(x=>{x.classList.remove("open");x._exp=null});
+  lesson.querySelectorAll(".line").forEach(l=>l.classList.remove("followed","lost","after"));
+  diag.hidden=true;
+};
+</script>
+
+</body></html>
