@@ -1251,7 +1251,7 @@ function cabinetHTML(id, off){
        <span class="attract" hidden>${id === 'snake'
           ? '<canvas class="lcd-mini"></canvas><span class="p">PRESS START</span>'
           : id === 'scores'
-          ? '<span class="t">HIGH SCORES</span><span class="hs-mini"><i>1ST</i><b>4.5B</b><i>2ND</i><b>30K+</b><i>3RD</i><b>+40%</b></span><span class="p">PRESS START</span>'
+          ? '<span class="t">HIGH SCORES</span><span class="hs-mini"><i>1ST</i><b>4.5B</b><i>2ND</i><b>30K+</b><i>3RD</i><b>−40%</b></span><span class="p">PRESS START</span>'
           : id === 'cont'
           ? '<span class="t">CONTINUE?</span><span class="cnt-num">9</span><span class="p">PLAYER 2 PRESS START</span>'
           : '<canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span>'}</span>`;
@@ -1764,8 +1764,8 @@ const SCORES = [
     detail:'Request throttling handling 4.5 billion requests every single day.' },
   { to:30000, fmt:v => Math.round(v).toLocaleString('en-US') + '+',          what:'Servers reached per deploy',        stage:'Microsoft',
     detail:'Deployments rolled out across more than 30,000 servers.' },
-  { to:40,    fmt:v => '+' + Math.round(v) + '%',                            what:'Visit-to-purchase conversion',      stage:'Nordstrom.com',
-    detail:'Lifted the visit-to-purchase conversion rate by 40% on Nordstrom.com.' },
+  { to:40,    fmt:v => '−' + Math.round(v) + '%',                            what:'Return fraud stopped',              stage:'Nordstrom.com',
+    detail:'Cut return fraud on Nordstrom.com by 40%.' },
 ];
 const BADGES = [
   ['8+', 'VETERAN',         '8+ years in the game'],
