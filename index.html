@@ -390,6 +390,45 @@ body.awake .hero{opacity:1;transform:none}
   .bay-text{width:86vw;padding:0 7vw}
 }
 
+/* ---- bonus machine + Snake ---- */
+.bonus-hint{margin:22px 0 0;font-family:var(--pixel);font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
+.bonus-hint b{font-weight:400;color:#b6f25e;display:inline-block;animation:walk 1.2s steps(3) infinite}
+.attract canvas.lcd-mini{animation:none;width:150px;height:90px;image-rendering:pixelated;border-radius:2px;box-shadow:0 0 0 3px #1b2414}
+#snake{position:fixed;inset:0;z-index:72;overflow:auto;padding:16px;background:rgba(4,6,3,.9);display:grid;place-items:center}
+.phone{
+  width:min(400px,94vw);padding:22px 22px 26px;border-radius:44px 44px 64px 64px;
+  background:linear-gradient(160deg,#30362b,#171a14 60%,#101209);
+  box-shadow:inset 0 0 0 2px #3c4436,inset 0 -10px 30px rgba(0,0,0,.5),0 40px 90px #000,0 0 60px rgba(182,242,94,.08);
+  animation:phoneIn .45s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes phoneIn{from{transform:translateY(40px) scale(.96);opacity:0}}
+.phone-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 6px 14px}
+.ear{width:58px;height:7px;border-radius:4px;background:#0b0d09;box-shadow:inset 0 1px 2px #000}
+.brand{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:11px;letter-spacing:.06em;color:#9aa58e;text-transform:uppercase}
+.sn-close{background:none;border:1px solid #4a5442;color:#b6f25e;font-family:var(--pixel);font-size:10px;letter-spacing:.12em;padding:5px 9px;cursor:pointer;border-radius:6px}
+.lcd-frame{background:#0c0e0a;border-radius:16px;padding:12px;box-shadow:inset 0 0 0 2px #2c3327,inset 0 6px 14px #000}
+.lcd{position:relative;background:#c7f0d8;padding:8px 8px 10px;border-radius:4px;box-shadow:inset 0 0 20px rgba(67,82,61,.4);touch-action:none;user-select:none}
+.lcd::after{ /* LCD pixel grid */
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:4px;
+  background:repeating-linear-gradient(0deg,rgba(67,82,61,.07) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(67,82,61,.07) 0 1px,transparent 1px 3px)}
+.lcd-bar{display:flex;justify-content:space-between;font-family:var(--pixel);font-size:13px;color:#43523d;margin:0 2px 6px;letter-spacing:.06em}
+#snCanvas{display:block;width:100%;image-rendering:pixelated}
+.lcd-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;
+  background:rgba(199,240,216,.88);color:#43523d;font-family:var(--pixel);font-size:11px;letter-spacing:.12em;border-radius:4px;padding:10px}
+.lcd-msg b{font-weight:400;font-size:30px;letter-spacing:.06em}
+.lcd-msg i{font-style:normal;font-size:16px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;margin-top:22px}
+.key{
+  height:48px;border:0;border-radius:16px 16px 22px 22px;cursor:pointer;
+  background:linear-gradient(#41483b,#252a21);color:#dfe8d2;box-shadow:0 3px 0 #0a0b08,inset 0 1px 0 rgba(255,255,255,.08);
+  font-family:var(--display);font-stretch:100%;font-weight:800;font-size:20px;line-height:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;touch-action:manipulation;
+}
+.key small{font-family:var(--pixel);font-size:7px;letter-spacing:.1em;color:#b6f25e}
+.key.hot{box-shadow:0 3px 0 #0a0b08,inset 0 0 0 1px rgba(182,242,94,.35)}
+.key:active,.key.pressed{transform:translateY(2px);box-shadow:0 1px 0 #0a0b08,inset 0 0 0 1px rgba(182,242,94,.6)}
+.sn-help{margin:16px 0 0;text-align:center;font-family:var(--mono);font-size:11px;color:#7c866f}
+
 /* ---- performance: let the browser's compositor drive the hall when it can ---- */
 body{timeline-scope:--hall}
 .arcade{view-timeline:--hall block}
@@ -668,6 +707,10 @@ footer a:hover{border-color:var(--neon)}
               <li><span>02</span>What an LLM is, and where it comes from</li>
               <li><span>03</span>Agents</li>
             </ul>
+            <p class="bonus-hint">Made it this far? Keep walking <b>▸</b></p>
+          </div>
+          <div class="bay bay-bonus">
+            <button class="cab" id="cab-snake" data-cab="snake" disabled aria-label="Bonus stage — play Snake"></button>
           </div>
         </div>
         <div class="hall-meter" aria-hidden="true"><span>HALL</span><i><b id="meterFill"></b></i></div>
@@ -684,6 +727,36 @@ footer a:hover{border-color:var(--neon)}
     </footer>
   </div>
 </main>
+
+<!-- ======================= BONUS — SNAKE ======================= -->
+<div id="snake" hidden role="dialog" aria-modal="true" aria-label="Bonus stage: Snake">
+  <div class="phone">
+    <div class="phone-top"><span class="ear" aria-hidden="true"></span><span class="brand">VELARDE · BONUS</span>
+      <button class="sn-close" id="snClose" aria-label="Back to the hall">ESC ✕</button></div>
+    <div class="lcd-frame">
+      <div class="lcd" id="snLcd">
+        <div class="lcd-bar"><span id="snScore">0000</span><span id="snHi">HI 0000</span></div>
+        <canvas id="snCanvas" role="img" aria-label="Snake playfield"></canvas>
+        <div class="lcd-msg" id="snMsg"><b>SNAKE</b><span>PRESS 5 OR SPACE</span></div>
+      </div>
+    </div>
+    <div class="keys" id="snKeys">
+      <button class="key" data-k="1">1</button>
+      <button class="key hot" data-k="2">2<small>▲</small></button>
+      <button class="key" data-k="3">3</button>
+      <button class="key hot" data-k="4">4<small>◀</small></button>
+      <button class="key hot" data-k="5">5<small>START</small></button>
+      <button class="key hot" data-k="6">6<small>▶</small></button>
+      <button class="key" data-k="7">7</button>
+      <button class="key hot" data-k="8">8<small>▼</small></button>
+      <button class="key" data-k="9">9</button>
+      <button class="key" data-k="*">*</button>
+      <button class="key" data-k="0">0</button>
+      <button class="key" data-k="#">#</button>
+    </div>
+    <p class="sn-help">Arrows, WASD or 2 4 6 8 · swipe on touch</p>
+  </div>
+</div>
 
 <!-- ======================= WHO AM I — GAME SCREEN ======================= -->
 <div id="game" hidden role="dialog" aria-modal="true" aria-label="Who am I">
@@ -921,6 +994,7 @@ const MACHINES = {
   who:    { title:'Who am I',    sub:'CHARACTER SELECT', n:'01', a:'#ff5aa5', b:'#5ef2d6', body:'#1d0c27', body2:'#0b0710' },
   scores: { title:'High scores', sub:'TOP PLAYERS',      n:'02', a:'#ffb547', b:'#9b7bff', body:'#10122a', body2:'#07080f' },
   cont:   { title:'Continue?',   sub:'PLAYER 2 START',   n:'03', a:'#5ef2d6', b:'#ff5aa5', body:'#07221d', body2:'#040b0a' },
+  snake:  { title:'Snake',       sub:'BONUS STAGE',      n:'★',  a:'#b6f25e', b:'#ffe14d', body:'#112008', body2:'#060b03' },
 };
 /* side profile in side-face coordinates (x = 165 - depth) */
 const SIDE = '165,0 35,0 30,8 30,72 65,92 47,280 0,300 0,345 33,352 33,560 165,560';
@@ -964,7 +1038,9 @@ function cabinetHTML(id, off){
   const screen = off
     ? `<span class="tape"><span>OUT OF ORDER</span></span>`
     : `<span class="boot" hidden><span>BOOTING</span><span class="boot-bar"></span></span>
-       <span class="attract" hidden><canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span></span>`;
+       <span class="attract" hidden>${id === 'snake'
+          ? '<canvas class="lcd-mini"></canvas><span class="p">PRESS START</span>'
+          : '<canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span>'}</span>`;
   return `<span class="scene"><span class="rig">
       <span class="fc top"></span>
       <span class="fc side">${sideArt(id, m)}</span>
@@ -986,7 +1062,7 @@ function cabinetHTML(id, off){
         <span class="kick"></span>
       </span>
     </span></span>
-    <span class="cab-label chip"><span>${off ? 'Coming soon' : m.title}</span><span>${m.n}</span></span>`;
+    <span class="cab-label chip"><span>${off ? 'Coming soon' : id === 'snake' ? 'Bonus · Snake' : m.title}</span><span>${m.n}</span></span>`;
 }
 document.querySelectorAll('[data-cab]').forEach(el => {
   const id = el.dataset.cab, m = MACHINES[id], off = el.classList.contains('off');
@@ -1283,6 +1359,8 @@ async function enter(){
   // only working machines boot; the rest stay out of order
   document.querySelectorAll('.cab.off').forEach(c => c.classList.add('on-dim'));
   await bootCabinet(cabWho);
+  await bootCabinet(cabSnake, 10);
+  startSnakeDemo();
   ambientFlicker();
 }
 $('#coinBtn').addEventListener('click', enter);
@@ -1391,12 +1469,171 @@ function typeText(el, text){
 }
 
 /* ============================================================
+   BONUS — SNAKE (pocket-LCD style)
+   ============================================================ */
+const LCD_BG = '#c7f0d8', LCD_FG = '#43523d';
+function SnakeGame(cv){
+  const COLS = 24, ROWS = 14, C = 4, PAD = 2;
+  cv.width = COLS * C + PAD * 2; cv.height = ROWS * C + PAD * 2;
+  const g = cv.getContext('2d');
+  const s = {};
+  const same = (a, b) => a.x === b.x && a.y === b.y;
+  function placeFood(){
+    do { s.food = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; }
+    while (s.snake.some(p => same(p, s.food)));
+  }
+  function reset(){
+    s.snake = [{x:7,y:7},{x:6,y:7},{x:5,y:7},{x:4,y:7}];
+    s.dir = {x:1,y:0}; s.q = []; s.score = 0; s.over = false; s.tick = 0;
+    placeFood(); draw(true);
+  }
+  function blocked(n, body){ return n.x < 0 || n.y < 0 || n.x >= COLS || n.y >= ROWS || body.some(p => same(p, n)); }
+  function turn(d){
+    const last = s.q.length ? s.q[s.q.length - 1] : s.dir;
+    if ((d.x === -last.x && d.y === -last.y) || same(d, last)) return;
+    if (s.q.length < 2) s.q.push(d);
+  }
+  function step(){
+    if (s.over) return 'over';
+    if (s.q.length) s.dir = s.q.shift();
+    const h = s.snake[0], n = { x: h.x + s.dir.x, y: h.y + s.dir.y };
+    const eats = same(n, s.food);
+    if (blocked(n, eats ? s.snake : s.snake.slice(0, -1))) { s.over = true; return 'over'; }
+    s.snake.unshift(n);
+    if (eats) { s.score++; placeFood(); } else s.snake.pop();
+    s.tick++;
+    return eats ? 'eat' : 'move';
+  }
+  /* autopilot for the cabinet's attract screen */
+  function auto(){
+    const h = s.snake[0], d = s.dir;
+    const opts = [d, {x:d.y,y:-d.x}, {x:-d.y,y:d.x}]
+      .map(o => ({ o, n: { x: h.x + o.x, y: h.y + o.y } }))
+      .filter(c => !blocked(c.n, s.snake.slice(0, -1)))
+      .sort((a, b) => (Math.abs(a.n.x - s.food.x) + Math.abs(a.n.y - s.food.y)) - (Math.abs(b.n.x - s.food.x) + Math.abs(b.n.y - s.food.y)));
+    if (opts.length) s.dir = opts[0].o;
+  }
+  function draw(fresh){
+    // LCD ghosting: old pixels fade instead of vanishing
+    g.fillStyle = fresh ? LCD_BG : 'rgba(199,240,216,.62)';
+    g.fillRect(0, 0, cv.width, cv.height);
+    g.fillStyle = LCD_FG;
+    g.fillRect(0, 0, cv.width, 1); g.fillRect(0, cv.height - 1, cv.width, 1);
+    g.fillRect(0, 0, 1, cv.height); g.fillRect(cv.width - 1, 0, 1, cv.height);
+    s.snake.forEach((p, i) => {
+      const x = PAD + p.x * C, y = PAD + p.y * C;
+      g.fillRect(x, y, C - 1, C - 1);
+      if (i === 0) { g.fillStyle = LCD_BG; g.fillRect(x + 1 + Math.max(0, s.dir.x), y + 1 + Math.max(0, s.dir.y), 1, 1); g.fillStyle = LCD_FG; }
+    });
+    const fx = PAD + s.food.x * C, fy = PAD + s.food.y * C;   // little diamond
+    g.fillRect(fx + 1, fy, 1, 1); g.fillRect(fx, fy + 1, 1, 1); g.fillRect(fx + 2, fy + 1, 1, 1); g.fillRect(fx + 1, fy + 2, 1, 1);
+  }
+  reset();
+  return { reset, step, turn, auto, draw, state: s };
+}
+
+/* the cabinet's attract screen plays itself */
+const cabSnake = $('#cab-snake');
+let demoT = 0;
+function startSnakeDemo(){
+  const cv = $('.lcd-mini', cabSnake); if (!cv) return;
+  const demo = SnakeGame(cv);
+  clearInterval(demoT);
+  demoT = setInterval(() => {
+    if (document.hidden || snOpen) return;
+    demo.auto();
+    if (demo.step() === 'over' || demo.state.snake.length > 28) demo.reset(); else demo.draw();
+  }, RM ? 400 : 140);
+}
+
+/* the real game */
+const snakeEl = $('#snake'), snMsg = $('#snMsg');
+const sn = SnakeGame($('#snCanvas'));
+let snOpen = false, snRunning = false, snPaused = false, snT = 0;
+let snHi = parseInt(store.get('snake-hi') || '0', 10) || 0;
+const pad4 = n => String(n).padStart(4, '0');
+function snHud(){ $('#snScore').textContent = pad4(sn.state.score * 7); $('#snHi').textContent = 'HI ' + pad4(snHi); }
+function snSay(html){ snMsg.innerHTML = html; snMsg.hidden = !html; }
+sfx.eat = () => { const t = now(); tone(2093, 'square', t, 0.035, 0.05); tone(2637, 'square', t + 0.04, 0.03, 0.04); };
+sfx.die = () => { const t = now(); [523, 392, 262, 196].forEach((f, i) => tone(f, 'square', t + i * 0.09, 0.08, 0.06)); };
+sfx.key = () => tone(1400, 'square', now(), 0.015, 0.025);
+function snLoop(){
+  clearTimeout(snT);
+  if (!snRunning || snPaused) return;
+  const r = sn.step();
+  if (r === 'over') return snGameOver();
+  sn.draw();
+  if (r === 'eat') { sfx.eat(); snHud(); }
+  snT = setTimeout(snLoop, Math.max(55, 140 - sn.state.score * 4));
+}
+function snStart(){
+  sn.reset(); snRunning = true; snPaused = false; snSay(''); snHud(); sfx.start(); snLoop();
+}
+function snGameOver(){
+  snRunning = false; sfx.die();
+  const pts = sn.state.score * 7, best = pts > snHi;
+  if (best) { snHi = pts; store.set('snake-hi', String(snHi)); }
+  snHud();
+  snSay(`<b>GAME OVER</b><i>${pad4(pts)}</i><span>${best ? 'NEW HIGH SCORE!' : 'PRESS 5 TO RETRY'}</span>`);
+}
+function snPrimary(){
+  if (!snRunning) return snStart();
+  snPaused = !snPaused;
+  snSay(snPaused ? '<b>PAUSED</b><span>PRESS 5 TO GO ON</span>' : '');
+  if (!snPaused) snLoop();
+}
+const DIRS = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
+function snDir(name){
+  if (!snRunning) { snStart(); }
+  if (snPaused) return;
+  sn.turn(DIRS[name]);
+}
+function openSnake(){
+  snOpen = true; snakeEl.hidden = false; document.body.style.overflow = 'hidden';
+  sn.reset(); snRunning = false; snPaused = false; snHud();
+  snSay('<b>SNAKE</b><span>PRESS 5 OR SPACE</span>');
+  sfx.start();
+  $('#snKeys [data-k="5"]').focus();
+}
+function closeSnake(){
+  snOpen = false; snRunning = false; clearTimeout(snT);
+  snakeEl.hidden = true; document.body.style.overflow = ''; sfx.back(); cabSnake.focus();
+}
+cabSnake.addEventListener('click', openSnake);
+$('#snClose').addEventListener('click', closeSnake);
+const KEYMAP = { '2':'up', '8':'down', '4':'left', '6':'right' };
+$('#snKeys').addEventListener('click', e => {
+  const k = e.target.closest('.key'); if (!k) return;
+  sfx.key();
+  const v = k.dataset.k;
+  if (v === '5') snPrimary(); else if (KEYMAP[v]) snDir(KEYMAP[v]);
+});
+/* swipe on the screen; tap to start or pause */
+let tStart = null;
+$('#snLcd').addEventListener('touchstart', e => { const t = e.touches[0]; tStart = { x: t.clientX, y: t.clientY }; }, { passive:true });
+$('#snLcd').addEventListener('touchend', e => {
+  if (!tStart) return;
+  const t = e.changedTouches[0], dx = t.clientX - tStart.x, dy = t.clientY - tStart.y; tStart = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return snPrimary();
+  snDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+});
+function snKey(e){
+  const k = e.key;
+  const map = { ArrowUp:'up', w:'up', W:'up', '2':'up', ArrowDown:'down', s:'down', S:'down', '8':'down',
+                ArrowLeft:'left', a:'left', A:'left', '4':'left', ArrowRight:'right', d:'right', D:'right', '6':'right' };
+  if (k === 'Escape') { e.preventDefault(); return closeSnake(); }
+  if (map[k]) { e.preventDefault(); return snDir(map[k]); }
+  if (k === ' ' || k === 'Enter' || k === '5') { e.preventDefault(); return snPrimary(); }
+}
+
+/* ============================================================
    KEYBOARD
    ============================================================ */
 document.addEventListener('keydown', e => {
   if (!started && (e.key === 'Enter' || e.key === ' ') && document.activeElement === document.body) {
     e.preventDefault(); enter(); return;
   }
+  if (snOpen) return snKey(e);
   if (!gameOpen) return;
   if (e.key === 'Escape') {
     e.preventDefault();
