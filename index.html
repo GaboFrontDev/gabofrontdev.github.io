@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0a0908">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    TOKENS
@@ -23,7 +23,9 @@
   --amber:#ffb547;
   --screen:#040806;
   --lit:0;             /* room brightness, driven by JS 0 → 1 */
-  --serif:'Instrument Serif', Georgia, serif;
+  /* type system from the Bastion kit + a pixel face for in-game text */
+  --display:'Archivo', 'Arial Narrow', sans-serif;  /* width axis 62–125%, 800–900 */
+  --text:'Inter Tight', system-ui, sans-serif;
   --pixel:'Silkscreen', 'Courier New', monospace;
   --mono:'JetBrains Mono', ui-monospace, monospace;
 }
@@ -32,12 +34,18 @@ html,body{margin:0}
 body{
   background:var(--bg);
   color:var(--ink);
-  font-family:var(--mono);
+  font-family:var(--text);font-weight:500;
   min-height:100vh;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
 button{font:inherit;color:inherit}
+/* display type: condensed = 62%, wide = 125% (needs Archivo's width axis) */
+.cond{font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;letter-spacing:-.01em}
+.wide{font-family:var(--display);font-stretch:125%;font-weight:800;text-transform:uppercase;letter-spacing:-.02em}
+.chip{display:inline-flex;border:2px solid currentColor;font-family:var(--display);font-stretch:75%;font-weight:800;font-size:13px;line-height:1;text-transform:uppercase;letter-spacing:.02em}
+.chip > span{padding:6px 9px 5px}
+.chip > span + span{border-left:2px solid currentColor}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--neon2);outline-offset:4px}
 
@@ -112,10 +120,10 @@ button{font:inherit;color:inherit}
 .intro-inner{text-align:center;padding:24px}
 .intro-kicker{font-family:var(--pixel);font-size:12px;letter-spacing:.3em;color:var(--dim)}
 .intro-title{
-  font-family:var(--serif);font-weight:400;font-size:clamp(44px,8vw,96px);
-  line-height:.95;margin:18px 0 40px;color:#bdb4a2;
+  font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;
+  font-size:clamp(64px,12vw,150px);line-height:.84;letter-spacing:-.01em;margin:18px 0 40px;color:#6f675c;
 }
-.intro-title em{color:var(--ink)}
+.intro-title em{display:block;font-style:normal;font-stretch:125%;font-weight:800;font-size:.62em;letter-spacing:-.02em;color:var(--ink)}
 .coin-slot{
   appearance:none;border:0;cursor:pointer;background:none;padding:0;
   display:inline-flex;flex-direction:column;align-items:center;gap:18px;
@@ -182,11 +190,15 @@ button{font:inherit;color:inherit}
 body.awake .hero{opacity:1;transform:none}
 .kicker{font-family:var(--pixel);font-size:12px;letter-spacing:.28em;color:var(--neon2);margin:0 0 10px}
 .hero h1{
-  font-family:var(--serif);font-weight:400;margin:0;
-  font-size:clamp(56px,11vw,150px);line-height:.88;letter-spacing:-.02em;
+  margin:0;font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;
+  font-size:clamp(84px,17vw,250px);line-height:.8;letter-spacing:-.01em;color:var(--ink);
 }
-.hero h1 em{color:var(--neon);text-shadow:0 0 30px rgba(255,90,165,.35)}
-.lede{max-width:620px;font-size:15px;line-height:1.7;color:#cfc6b3;margin:26px 0 0}
+.hero h1 em{
+  display:block;font-style:normal;font-stretch:125%;font-weight:800;letter-spacing:-.03em;
+  font-size:.43em;line-height:1;margin-top:.12em;
+  color:var(--neon);text-shadow:0 0 30px rgba(255,90,165,.4);
+}
+.lede{max-width:600px;font-size:clamp(17px,1.5vw,20px);line-height:1.45;letter-spacing:-.01em;color:#cfc6b3;margin:30px 0 0}
 .lede b{color:var(--ink);font-weight:600}
 
 /* ============================================================
@@ -203,12 +215,12 @@ body.awake .hero{opacity:1;transform:none}
 }
 .cab[disabled]{cursor:default}
 .cab.ready:hover,.cab.ready:focus-visible{transform:translateY(-6px)}
-.cab-label,.base{display:block}
+.base{display:block}
 .marquee{
   width:100%;height:66px;display:grid;place-items:center;border-radius:12px 12px 3px 3px;
   background:linear-gradient(#181514,#100e0d);border:2px solid #24201d;
-  font-family:var(--pixel);font-size:19px;letter-spacing:.14em;color:#3b3431;
-  padding-left:.14em; /* balance trailing letter-spacing */
+  font-family:var(--display);font-stretch:125%;font-weight:900;font-size:21px;letter-spacing:-.01em;
+  text-transform:uppercase;color:#3b3431;
 }
 .cab.on .marquee{
   color:#fff1f8;border-color:rgba(255,90,165,.55);
@@ -270,7 +282,9 @@ body.awake .hero{opacity:1;transform:none}
   content:'';position:absolute;left:50%;top:44px;width:4px;height:20px;transform:translateX(-50%);
   background:#000;box-shadow:0 0 calc(10px * var(--lit)) rgba(255,181,71,.8);border:1px solid #3a2a12;
 }
-.cab-label{margin-top:14px;font-size:11px;color:var(--dim);letter-spacing:.08em}
+.cab-label{margin-top:16px;color:var(--dim)}
+.cab.on .cab-label{color:var(--ink)}
+.cab.on .cab-label > span + span{background:var(--neon);color:#16070e;border-color:var(--neon)}
 /* ---- horizontal hall: vertical scroll drives a sideways walk ---- */
 .arcade{position:relative;margin:0 -5vw}          /* full-bleed past .room padding */
 .arcade-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
@@ -293,14 +307,15 @@ body.awake .hero{opacity:1;transform:none}
 }
 .bay-text{width:clamp(320px,46vw,620px);align-items:flex-start;padding:0 5vw 0 calc(5vw + 10px)}
 .bay-title{
-  font-family:var(--serif);font-weight:400;margin:0;font-size:clamp(44px,6vw,84px);line-height:.95;
+  margin:0;font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;
+  font-size:clamp(60px,8vw,120px);line-height:.84;letter-spacing:-.01em;
 }
-.bay-title em{color:var(--neon2);text-shadow:0 0 24px rgba(94,242,214,.3)}
-.bay-copy{max-width:380px;font-size:14px;line-height:1.7;color:#cfc6b3;margin:20px 0 26px}
+.bay-title em{display:block;font-style:normal;font-stretch:125%;font-weight:800;font-size:.5em;line-height:1.05;letter-spacing:-.02em;color:var(--neon2);text-shadow:0 0 24px rgba(94,242,214,.3)}
+.bay-copy{max-width:400px;font-size:17px;line-height:1.45;color:#cfc6b3;margin:20px 0 26px}
 .walk{font-family:var(--pixel);font-size:11px;letter-spacing:.2em;color:var(--amber)}
 .walk b{font-weight:400;display:inline-block;animation:walk 1.2s steps(3) infinite}
 @keyframes walk{0%{transform:translateX(0)}100%{transform:translateX(9px)}}
-.soon{list-style:none;padding:0;margin:26px 0 0;font-size:14px;color:#cfc6b3}
+.soon{list-style:none;padding:0;margin:26px 0 0;font-size:17px;color:#cfc6b3}
 .soon li{display:flex;gap:14px;padding:12px 0;border-top:1px solid #24201d}
 .soon li:last-child{border-bottom:1px solid #24201d}
 .soon span{font-family:var(--pixel);font-size:10px;color:var(--neon);padding-top:3px}
@@ -332,6 +347,7 @@ body.awake .hero{opacity:1;transform:none}
 .tape span{display:block;background:#e8c23a;color:#16130f;font-family:var(--pixel);font-size:11px;letter-spacing:.2em;padding:3px 0}
 
 footer{
+  font-family:var(--mono);
   max-width:1100px;margin:40px auto 0;padding-top:24px;border-top:1px solid #1e1b18;
   display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;
   font-size:12px;color:var(--dim);opacity:0;transition:opacity 1.5s ease 1s;
@@ -415,7 +431,7 @@ footer a:hover{border-color:var(--neon)}
 .nameplate{font-family:var(--pixel);font-size:18px;letter-spacing:.08em;color:#fff}
 .meta{font-family:var(--pixel);font-size:10px;letter-spacing:.16em;color:var(--neon2);margin-top:8px;line-height:1.8}
 .stats h2,.story-head h2{
-  font-family:var(--serif);font-weight:400;font-style:italic;font-size:clamp(34px,5vw,54px);line-height:1;
+  font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(44px,6vw,72px);line-height:.85;letter-spacing:-.01em;
   margin:0 0 18px;color:#fff;text-shadow:0 0 20px rgba(94,242,214,.25);
 }
 .stat{display:grid;grid-template-columns:150px 1fr 34px;align-items:center;gap:14px;margin:0 0 12px;font-family:var(--pixel);font-size:11px;letter-spacing:.12em}
@@ -424,7 +440,7 @@ footer a:hover{border-color:var(--neon)}
 .stat .bar i.f{background:linear-gradient(var(--neon2),#2fb79e);border-color:var(--neon2);box-shadow:0 0 6px rgba(94,242,214,.6)}
 .stat .bar i.f.max{background:linear-gradient(var(--neon),#c2357a);border-color:var(--neon);box-shadow:0 0 6px rgba(255,90,165,.6)}
 .stat .v{text-align:right;color:var(--amber)}
-.moves{margin-top:22px;font-size:13px;line-height:1.7;color:#bfe9dd}
+.moves{margin-top:22px;font-size:15px;line-height:1.7;color:#bfe9dd}
 .moves b{font-family:var(--pixel);font-weight:400;font-size:10px;letter-spacing:.16em;color:var(--amber);margin-right:8px}
 .press{
   display:block;margin:34px auto 0;cursor:pointer;background:none;border:2px solid var(--amber);
@@ -468,10 +484,10 @@ footer a:hover{border-color:var(--neon)}
   background:linear-gradient(180deg,rgba(94,242,214,.05),transparent);min-height:240px;
 }
 .stage .lv{font-family:var(--pixel);font-size:11px;letter-spacing:.2em;color:var(--amber)}
-.stage .nm{font-family:var(--serif);font-size:clamp(36px,6vw,64px);line-height:1;margin:10px 0 8px;color:#fff;text-shadow:0 0 24px rgba(94,242,214,.3)}
-.stage .role{font-size:13px;color:var(--neon2)}
-.stage .when{font-size:12px;color:var(--dim);margin-top:4px}
-.stage .txt{font-size:15px;line-height:1.75;max-width:640px;margin:18px 0 0;color:#d8fff3;min-height:3.5em}
+.stage .nm{font-family:var(--display);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(48px,7vw,96px);line-height:.85;letter-spacing:-.01em;margin:10px 0 8px;color:#fff;text-shadow:0 0 24px rgba(94,242,214,.3)}
+.stage .role{font-family:var(--display);font-stretch:125%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:-.01em;color:var(--neon2);margin-top:12px}
+.stage .when{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:4px}
+.stage .txt{font-family:var(--mono);font-size:15px;line-height:1.75;max-width:640px;margin:18px 0 0;color:#d8fff3;min-height:3.5em}
 .stage .txt::after{content:'▌';color:var(--neon2);animation:blink .8s steps(1) infinite;margin-left:2px}
 .stamp{
   position:absolute;top:24px;right:24px;transform:rotate(8deg);
@@ -572,7 +588,7 @@ footer a:hover{border-color:var(--neon)}
         </span>
         <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
         <span class="base"></span>
-        <span class="cab-label">character select · story mode</span>
+        <span class="cab-label chip"><span>Who am I</span><span>01</span></span>
       </button>
         </div>
         <div class="bay">
@@ -582,7 +598,7 @@ footer a:hover{border-color:var(--neon)}
         <span class="shell"><span class="screen"><span class="tape"><span>OUT OF ORDER</span></span></span></span>
         <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
         <span class="base"></span>
-        <span class="cab-label">coming soon</span>
+        <span class="cab-label chip"><span>Coming soon</span><span>02</span></span>
       </div>
         </div>
         <div class="bay">
@@ -591,7 +607,7 @@ footer a:hover{border-color:var(--neon)}
         <span class="shell"><span class="screen"><span class="tape"><span>OUT OF ORDER</span></span></span></span>
         <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
         <span class="base"></span>
-        <span class="cab-label">coming soon</span>
+        <span class="cab-label chip"><span>Coming soon</span><span>03</span></span>
       </div>
         </div>
           <div class="bay bay-text bay-end">
