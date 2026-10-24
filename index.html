@@ -124,6 +124,7 @@ button{font:inherit;color:inherit}
   width:110px;height:150px;border-radius:10px;position:relative;
   background:linear-gradient(160deg,#2a2521,#141110);
   box-shadow:inset 0 0 0 2px #3a332e,0 12px 30px rgba(0,0,0,.6);
+  perspective:500px;
 }
 .slot-plate::before{ /* the slit */
   content:'';position:absolute;left:50%;top:38px;width:8px;height:58px;transform:translateX(-50%);
@@ -137,15 +138,29 @@ button{font:inherit;color:inherit}
 }
 @keyframes slotglow{50%{box-shadow:0 0 0 3px #4a413a,0 0 26px rgba(255,181,71,.85),inset 0 0 8px rgba(255,181,71,.9)}}
 .coin{
-  position:absolute;left:50%;top:-70px;width:44px;height:44px;margin-left:-22px;border-radius:50%;
+  /* centered on the slit (slit: top 38px, height 58px) */
+  position:absolute;left:50%;top:45px;width:44px;height:44px;margin-left:-22px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff3cf,#e9b64b 45%,#9c6a1a);
-  box-shadow:inset 0 0 0 3px rgba(120,80,20,.6);opacity:0;
+  box-shadow:inset 0 0 0 3px rgba(120,80,20,.6),inset 0 0 0 6px rgba(255,230,160,.25);
+  opacity:0;transform-style:preserve-3d;
 }
-#intro.inserted .coin{animation:coindrop .55s cubic-bezier(.5,0,.9,.4) forwards}
-@keyframes coindrop{
-  0%{opacity:1;transform:translateY(0) rotateY(0)}
-  70%{opacity:1;transform:translateY(100px) rotateY(80deg) scaleX(.2)}
-  100%{opacity:0;transform:translateY(118px) rotateY(90deg) scaleX(.05)}
+/* real-life insert: comes toward the slot face-on, turns edge-on to match
+   the vertical slit, then gets pushed in and swallowed by the dark */
+#intro.inserted .coin{animation:coinInsert .9s cubic-bezier(.3,.6,.3,1) forwards}
+@keyframes coinInsert{
+  0%  {opacity:0;transform:translate(46px,70px) scale(1.7) rotate(-18deg) rotateY(0deg);filter:brightness(1)}
+  12% {opacity:1}
+  38% {transform:translate(0,0) scale(1.18) rotate(0deg) rotateY(0deg);filter:brightness(1)}
+  60% {transform:translate(0,0) scale(1.12) rotate(0deg) rotateY(86deg);filter:brightness(1.1)}
+  72% {opacity:1;transform:translate(0,0) scale(1.06) rotate(0deg) rotateY(86deg);filter:brightness(.9)}
+  100%{opacity:0;transform:translate(0,0) scale(.9) rotate(0deg) rotateY(88deg);filter:brightness(.15)}
+}
+/* the slit flashes as the coin goes through */
+#intro.inserted .slot-plate::before{animation:slotTake .9s ease-out forwards}
+@keyframes slotTake{
+  0%,60%{box-shadow:0 0 0 3px #4a413a,0 0 16px rgba(255,181,71,.55),inset 0 0 6px rgba(255,181,71,.7)}
+  75%{box-shadow:0 0 0 3px #6a5a48,0 0 34px rgba(255,200,110,1),inset 0 0 10px rgba(255,220,150,1)}
+  100%{box-shadow:0 0 0 3px #4a413a,0 0 10px rgba(255,181,71,.3),inset 0 0 4px rgba(255,181,71,.4)}
 }
 .insert{
   font-family:var(--pixel);font-size:22px;letter-spacing:.18em;color:var(--amber);
@@ -163,7 +178,7 @@ button{font:inherit;color:inherit}
 /* ============================================================
    HERO
    ============================================================ */
-.hero{max-width:1100px;margin:0 auto 70px;opacity:0;transform:translateY(12px);transition:opacity 1.2s ease,transform 1.2s ease}
+.hero{max-width:1100px;margin:0 auto 40px;opacity:0;transform:translateY(12px);transition:opacity 1.2s ease,transform 1.2s ease}
 body.awake .hero{opacity:1;transform:none}
 .kicker{font-family:var(--pixel);font-size:12px;letter-spacing:.28em;color:var(--neon2);margin:0 0 10px}
 .hero h1{
@@ -256,6 +271,52 @@ body.awake .hero{opacity:1;transform:none}
   background:#000;box-shadow:0 0 calc(10px * var(--lit)) rgba(255,181,71,.8);border:1px solid #3a2a12;
 }
 .cab-label{margin-top:14px;font-size:11px;color:var(--dim);letter-spacing:.08em}
+/* ---- horizontal hall: vertical scroll drives a sideways walk ---- */
+.arcade{position:relative;margin:0 -5vw}          /* full-bleed past .room padding */
+.arcade-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.track{
+  position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;
+  padding:60px 0 40px;will-change:transform;
+}
+.track::after{ /* floor line + reflection that runs the whole hall */
+  content:'';position:absolute;left:0;right:0;bottom:calc(50% - 300px);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,90,165,.25) 15%,rgba(94,242,214,.2) 85%,transparent);
+  box-shadow:0 0 30px rgba(255,90,165,.2);opacity:var(--lit);
+}
+.bay{
+  flex:0 0 auto;width:clamp(320px,38vw,520px);height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
+}
+.bay + .bay:not(.bay-text)::before,.bay-end::before{ /* faint pillar between bays */
+  content:'';position:absolute;left:0;top:18%;bottom:18%;width:1px;
+  background:linear-gradient(transparent,rgba(239,230,210,.08),transparent);
+}
+.bay-text{width:clamp(320px,46vw,620px);align-items:flex-start;padding:0 5vw 0 calc(5vw + 10px)}
+.bay-title{
+  font-family:var(--serif);font-weight:400;margin:0;font-size:clamp(44px,6vw,84px);line-height:.95;
+}
+.bay-title em{color:var(--neon2);text-shadow:0 0 24px rgba(94,242,214,.3)}
+.bay-copy{max-width:380px;font-size:14px;line-height:1.7;color:#cfc6b3;margin:20px 0 26px}
+.walk{font-family:var(--pixel);font-size:11px;letter-spacing:.2em;color:var(--amber)}
+.walk b{font-weight:400;display:inline-block;animation:walk 1.2s steps(3) infinite}
+@keyframes walk{0%{transform:translateX(0)}100%{transform:translateX(9px)}}
+.soon{list-style:none;padding:0;margin:26px 0 0;font-size:14px;color:#cfc6b3}
+.soon li{display:flex;gap:14px;padding:12px 0;border-top:1px solid #24201d}
+.soon li:last-child{border-bottom:1px solid #24201d}
+.soon span{font-family:var(--pixel);font-size:10px;color:var(--neon);padding-top:3px}
+.hall-meter{
+  position:absolute;left:5vw;bottom:22px;display:flex;align-items:center;gap:12px;
+  font-family:var(--pixel);font-size:10px;letter-spacing:.2em;color:var(--dim);
+}
+.hall-meter i{display:block;width:140px;height:4px;background:#1f1c19}
+.hall-meter b{display:block;height:100%;width:0;background:var(--neon);box-shadow:0 0 8px var(--neon)}
+@media (max-height:720px){ .bay > .cab{transform:scale(.82)} .bay > .cab.ready:hover{transform:scale(.82) translateY(-6px)} }
+@media (max-height:600px){ .bay > .cab{transform:scale(.68)} .bay > .cab.ready:hover{transform:scale(.68) translateY(-6px)} }
+@media (max-width:760px){
+  .bay{width:86vw}
+  .bay-text{width:86vw;padding:0 7vw}
+}
+
 /* out-of-order cabinets */
 .cab.off .screen{background:#060606}
 .cab.off .screen::before{
@@ -271,7 +332,7 @@ body.awake .hero{opacity:1;transform:none}
 .tape span{display:block;background:#e8c23a;color:#16130f;font-family:var(--pixel);font-size:11px;letter-spacing:.2em;padding:3px 0}
 
 footer{
-  max-width:1100px;margin:90px auto 0;padding-top:24px;border-top:1px solid #1e1b18;
+  max-width:1100px;margin:40px auto 0;padding-top:24px;border-top:1px solid #1e1b18;
   display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;
   font-size:12px;color:var(--dim);opacity:0;transition:opacity 1.5s ease 1s;
 }
@@ -486,8 +547,16 @@ footer a:hover{border-color:var(--neon)}
       </p>
     </header>
 
-    <section class="floor" aria-label="Arcade machines">
-
+    <section class="arcade" id="arcade" aria-label="Arcade machines">
+      <div class="arcade-pin" id="arcadePin">
+        <div class="track" id="track">
+          <div class="bay bay-text">
+            <p class="kicker">THE FLOOR</p>
+            <h2 class="bay-title">Walk the <em>hall</em></h2>
+            <p class="bay-copy">Each machine is something I've built or gone deep on. Keep scrolling to walk past them.</p>
+            <span class="walk" aria-hidden="true">SCROLL <b>▸▸▸</b></span>
+          </div>
+        <div class="bay">
       <!-- WHO AM I -->
       <button class="cab" id="cab-who" data-machine="who" disabled aria-label="Who am I — open machine">
         <span class="marquee">WHO AM I</span>
@@ -505,7 +574,8 @@ footer a:hover{border-color:var(--neon)}
         <span class="base"></span>
         <span class="cab-label">character select · story mode</span>
       </button>
-
+        </div>
+        <div class="bay">
       <!-- placeholders for future machines -->
       <div class="cab off" aria-label="High scores — coming soon">
         <span class="marquee">HIGH SCORES</span>
@@ -514,7 +584,8 @@ footer a:hover{border-color:var(--neon)}
         <span class="base"></span>
         <span class="cab-label">coming soon</span>
       </div>
-
+        </div>
+        <div class="bay">
       <div class="cab off" aria-label="Continue — coming soon">
         <span class="marquee">CONTINUE?</span>
         <span class="shell"><span class="screen"><span class="tape"><span>OUT OF ORDER</span></span></span></span>
@@ -522,7 +593,19 @@ footer a:hover{border-color:var(--neon)}
         <span class="base"></span>
         <span class="cab-label">coming soon</span>
       </div>
-
+        </div>
+          <div class="bay bay-text bay-end">
+            <p class="kicker">BEING WIRED UP</p>
+            <h2 class="bay-title">More <em>machines</em> soon</h2>
+            <ul class="soon">
+              <li><span>01</span>Why Rust</li>
+              <li><span>02</span>What an LLM is, and where it comes from</li>
+              <li><span>03</span>Agents</li>
+            </ul>
+          </div>
+        </div>
+        <div class="hall-meter" aria-hidden="true"><span>HALL</span><i><b id="meterFill"></b></i></div>
+      </div>
     </section>
 
     <footer>
@@ -821,6 +904,41 @@ function ambientFlicker(){
 }
 
 /* ============================================================
+   HORIZONTAL HALL — pin the machines and translate the track
+   ============================================================ */
+const arcade = $('#arcade'), pin = $('#arcadePin'), track = $('#track'), meter = $('#meterFill');
+let travel = 0, ticking = false;
+function layoutHall(){
+  travel = Math.max(0, track.scrollWidth - pin.clientWidth);
+  arcade.style.height = (pin.clientHeight + travel) + 'px';
+  updateHall();
+}
+function hallProgress(){
+  const span = arcade.offsetHeight - pin.clientHeight;
+  if (span <= 0) return 0;
+  return Math.min(1, Math.max(0, -arcade.getBoundingClientRect().top / span));
+}
+function updateHall(){
+  ticking = false;
+  const p = hallProgress();
+  track.style.transform = `translate3d(${-p * travel}px,0,0)`;
+  meter.style.width = (p * 100) + '%';
+}
+window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateHall); } }, { passive:true });
+window.addEventListener('resize', layoutHall);
+if (document.fonts) document.fonts.ready.then(layoutHall);
+layoutHall();
+/* keyboard users: tabbing to a machine scrolls the page to where it's in view */
+track.addEventListener('focusin', e => {
+  pin.scrollLeft = 0;
+  const bay = e.target.closest('.bay');
+  if (!bay || !travel) return;
+  const target = Math.min(travel, Math.max(0, bay.offsetLeft + bay.offsetWidth / 2 - pin.clientWidth / 2));
+  const top = arcade.getBoundingClientRect().top + window.scrollY + target;
+  window.scrollTo({ top, behavior: RM ? 'auto' : 'smooth' });
+});
+
+/* ============================================================
    CABINET BOOT
    ============================================================ */
 const cabWho = $('#cab-who');
@@ -852,9 +970,10 @@ async function enter(){
   started = true;
   audioInit();
   if (A.ctx && A.ctx.state === 'suspended') { try { await A.ctx.resume(); } catch(e){} }
-  sfx.coin();
   intro.classList.add('inserted');
-  await wait(1100);
+  await wait(640);          // coin travels and turns edge-on
+  sfx.coin();               // scrape through the slit, bounces inside
+  await wait(1000);
   intro.classList.add('gone');
   await wait(500);
   await lightsOn();
