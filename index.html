@@ -213,87 +213,135 @@ body.awake .hero{opacity:1;transform:none}
 /* ============================================================
    CABINETS
    ============================================================ */
-.floor{
-  max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;
-  gap:clamp(24px,4vw,56px);align-items:flex-start;
-}
 .cab{
-  appearance:none;border:0;background:none;padding:0;cursor:pointer;
-  width:min(270px,82vw);display:flex;flex-direction:column;align-items:center;
-  transition:transform .25s ease;text-align:center;
+  appearance:none;border:0;background:none;padding:0;color:inherit;cursor:pointer;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+  /* palette (set per machine from JS); out-of-order machines stay muted */
+  --a:#6a6370;--b:#4a4650;--body:#16141a;--body2:#0a090c;--tm:rgba(255,255,255,.08);
 }
 .cab[disabled]{cursor:default}
-.cab.ready:hover,.cab.ready:focus-visible{transform:translateY(-6px)}
-.base{display:block}
-.marquee{
-  width:100%;height:66px;display:grid;place-items:center;border-radius:12px 12px 3px 3px;
-  background:linear-gradient(#181514,#100e0d);border:2px solid #24201d;
-  font-family:var(--display);font-stretch:125%;font-weight:900;font-size:21px;letter-spacing:-.01em;
-  text-transform:uppercase;color:#3b3431;
+.cab.on{--tm:var(--a)}
+/* 3D stage */
+.scene{display:block;position:relative;width:340px;height:610px;perspective:1500px;perspective-origin:50% 22%}
+.scene::after{ /* floor shadow + a little neon spill */
+  content:'';position:absolute;left:12%;right:2%;bottom:6px;height:46px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.85),transparent);
 }
-.cab.on .marquee{
-  color:#fff1f8;border-color:rgba(255,90,165,.55);
-  background:radial-gradient(ellipse at center,rgba(255,90,165,.28),#140c10 72%);
-  text-shadow:0 0 6px var(--neon),0 0 18px var(--neon),0 0 40px var(--neon);
-  box-shadow:0 0 40px rgba(255,90,165,.18);
-  animation:marqueeOn .7s steps(1);
+.cab.on .scene::after{background:radial-gradient(closest-side,color-mix(in srgb,var(--a) 22%,#000),transparent)}
+.rig{
+  position:absolute;left:34px;top:24px;width:240px;height:560px;display:block;
+  transform-style:preserve-3d;transform-origin:120px 280px 82px;
+  transform:rotateX(-7deg) rotateY(-26deg);transition:transform .7s cubic-bezier(.2,.8,.2,1);
 }
+.cab.ready:hover .rig,.cab.ready:focus-visible .rig{transform:rotateX(-7deg) rotateY(-12deg) translateY(-8px)}
+.fc{position:absolute;left:0;display:block;width:240px;transform-origin:50% 0}
+/* geometry (side profile, depth z from the back):
+   marquee z135 · speaker under-slope → screen z100..118 · deck juts to z165 · base z132 */
+.top{top:0;height:135px;transform:rotateX(90deg);background:linear-gradient(#24202a,#0f0d12)}
+.side{top:0;left:240px;width:165px;height:560px;transform-origin:0 0;transform:translateZ(165px) rotateY(90deg)}
+.side svg{display:block}
+.marquee{top:0;height:72px;transform:translateZ(135px);background:#0a090c;border-left:3px solid var(--tm);padding:7px 7px 7px 4px}
+.grille{top:72px;height:40px;transform:translateZ(135px) rotateX(-60.3deg);border-left:3px solid var(--tm);
+  background:radial-gradient(circle,#000 1.3px,transparent 1.7px) 3px 3px/7px 7px,linear-gradient(#1d1a22,#110f14)}
+.bezel{top:92px;height:189px;transform:translateZ(100px) rotateX(5.47deg);border-left:3px solid var(--tm);
+  background:linear-gradient(90deg,#08070a,#121016 50%,#08070a)}
+.deck{top:280px;height:51px;transform:translateZ(118px) rotateX(66.9deg);border-left:3px solid var(--tm);
+  background:linear-gradient(#2a2530,#16131a)}
+.deck-front{top:300px;height:45px;transform:translateZ(165px);border-left:3px solid var(--tm);
+  background:linear-gradient(var(--a) 0 3px,var(--body) 3px)}
+.deck-under{top:345px;height:34px;transform:translateZ(165px) rotateX(-78deg);background:#060507}
+.base{top:352px;height:208px;transform:translateZ(132px);border-left:3px solid var(--tm);
+  background:linear-gradient(180deg,var(--body),var(--body2))}
+
+/* marquee light box */
+.mq{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;
+  background:linear-gradient(#141218,#0d0b10);border:1px solid #2a2630;overflow:hidden}
+.mq-logo{display:block;font-family:var(--display);font-stretch:125%;font-weight:900;font-size:24px;line-height:1;letter-spacing:-.02em;
+  text-transform:uppercase;color:#2d2932;white-space:nowrap}
+.mq-sub{display:block;margin-top:5px;font-family:var(--pixel);font-size:7px;letter-spacing:.2em;color:#2d2932}
+.cab.on .mq{
+  background:radial-gradient(ellipse at 50% 60%,color-mix(in srgb,var(--a) 45%,transparent),transparent 70%),
+             repeating-linear-gradient(115deg,color-mix(in srgb,var(--b) 18%,#120f16) 0 6px,#120f16 6px 18px);
+  border-color:color-mix(in srgb,var(--a) 60%,#000);
+  box-shadow:0 0 30px color-mix(in srgb,var(--a) 45%,transparent);animation:marqueeOn .7s steps(1);
+}
+.cab.on .mq-logo{
+  color:#fff;-webkit-text-stroke:1px #0b0a0c;
+  background:linear-gradient(#fff 30%,color-mix(in srgb,var(--a) 70%,#fff) 60%,var(--a));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(2px 2px 0 #0b0a0c) drop-shadow(0 0 10px var(--a));
+}
+.cab.on .mq-sub{color:var(--b);text-shadow:0 0 6px var(--b)}
+.mq::after{ /* glass glare */
+  content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.12),transparent 40%);pointer-events:none}
 @keyframes marqueeOn{0%,20%,45%{opacity:.25}10%,30%,60%,100%{opacity:1}}
-.shell{
-  width:100%;padding:16px 0 14px;display:flex;flex-direction:column;align-items:center;
-  background:linear-gradient(90deg,#0c0a09,#1b1816 10%,#1b1816 90%,#0c0a09);
-  border-left:2px solid #24201d;border-right:2px solid #24201d;
-}
+
+/* screen in its bezel */
 .screen{
-  position:relative;width:84%;aspect-ratio:4/3;overflow:hidden;
-  background:var(--screen);border-radius:16px/20px;
-  box-shadow:inset 0 0 30px #000,0 0 0 7px #080706,0 0 0 9px #26211e;
-  display:grid;place-items:center;
+  position:absolute;left:21px;right:21px;top:16px;aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center;
+  background:var(--screen);border-radius:14px/18px;
+  box-shadow:inset 0 0 26px #000,0 0 0 5px #050406,0 0 0 7px #24202a;
 }
-.cab.on .screen{box-shadow:inset 0 0 30px #000,0 0 0 7px #080706,0 0 0 9px #26211e,0 0 50px rgba(94,242,214,.14)}
-.screen::after{ /* scanlines + curvature shade */
+.cab.on .screen{box-shadow:inset 0 0 26px #000,0 0 0 5px #050406,0 0 0 7px color-mix(in srgb,var(--a) 50%,#24202a),0 0 40px color-mix(in srgb,var(--b) 20%,transparent)}
+.screen::after{ /* scanlines + curvature + glass */
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
+    linear-gradient(155deg,rgba(255,255,255,.09),transparent 35%),
     repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px),
-    radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);
+    radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.6) 100%);
 }
-.boot{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--neon2);font-family:var(--pixel);font-size:10px;letter-spacing:.2em}
-.boot-bar{display:flex;gap:3px;padding:4px;border:1px solid rgba(94,242,214,.5)}
-.boot-bar i{width:8px;height:12px;background:rgba(94,242,214,.08)}
+.bz-label{position:absolute;left:0;right:0;bottom:7px;display:flex;justify-content:space-between;padding:0 24px;
+  font-family:var(--pixel);font-size:6px;letter-spacing:.2em;color:#3a3540}
+.cab.on .bz-label{color:var(--b)}
+.boot{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--neon2);font-family:var(--pixel);font-size:9px;letter-spacing:.2em}
+.boot-bar{display:flex;gap:2px;padding:3px;border:1px solid rgba(94,242,214,.5)}
+.boot-bar i{width:7px;height:11px;background:rgba(94,242,214,.08)}
 .boot-bar i.f{background:var(--neon2);box-shadow:0 0 6px var(--neon2)}
-.attract{display:flex;flex-direction:column;align-items:center;gap:8px}
-.attract canvas{width:56px;height:63px;image-rendering:pixelated;animation:bob 1.4s steps(2) infinite}
-.attract .t{font-family:var(--pixel);font-size:13px;color:var(--ink);letter-spacing:.1em}
-.attract .p{font-family:var(--pixel);font-size:10px;color:var(--amber);letter-spacing:.2em;animation:blink 1s steps(1) infinite}
+.attract{display:flex;flex-direction:column;align-items:center;gap:7px}
+.attract canvas{width:52px;height:58px;image-rendering:pixelated;animation:bob 1.4s steps(2) infinite}
+.attract .t{font-family:var(--pixel);font-size:11px;color:var(--ink);letter-spacing:.1em}
+.attract .p{font-family:var(--pixel);font-size:9px;color:var(--amber);letter-spacing:.2em;animation:blink 1s steps(1) infinite}
 @keyframes bob{50%{transform:translateY(-2px)}}
-.panel{
-  width:104%;height:54px;margin-top:-1px;position:relative;
-  background:linear-gradient(#2a2521,#171412);border-radius:6px 6px 2px 2px;
-  border:2px solid #2d2723;
-  display:flex;align-items:center;justify-content:center;gap:26px;
-}
-.stick{display:block;width:14px;height:14px;border-radius:50%;background:#c43a3a;box-shadow:0 0 0 6px #111}
-.btns{display:flex;gap:10px}
-.btns i{display:block;width:15px;height:15px;border-radius:50%;background:#3a3330;box-shadow:inset 0 -3px 0 rgba(0,0,0,.4)}
-.cab.on .btns i:nth-child(1){background:var(--neon)}
-.cab.on .btns i:nth-child(2){background:var(--neon2)}
-.cab.on .btns i:nth-child(3){background:var(--amber)}
-.base{
-  width:94%;height:130px;position:relative;
-  background:linear-gradient(90deg,#0b0908,#171412 12%,#171412 88%,#0b0908);
-  border-left:2px solid #201c19;border-right:2px solid #201c19;
-}
-.base::before{ /* coin door */
-  content:'';position:absolute;left:50%;top:26px;width:54px;height:62px;transform:translateX(-50%);
-  background:#0f0d0c;border:2px solid #2a2420;border-radius:4px;
-}
-.base::after{
-  content:'';position:absolute;left:50%;top:44px;width:4px;height:20px;transform:translateX(-50%);
-  background:#000;box-shadow:0 0 calc(10px * var(--lit)) rgba(255,181,71,.8);border:1px solid #3a2a12;
-}
-.cab-label{margin-top:16px;color:var(--dim)}
+
+/* control deck: ring art, ball-top joystick standing up, buttons with rings */
+.deck .ring{position:absolute;border-radius:50%;border:2px solid color-mix(in srgb,var(--a) 70%,#000)}
+.cab.on .deck .ring{border-color:var(--a);box-shadow:0 0 10px var(--a),inset 0 0 6px var(--a)}
+.deck .ring.base-ring{left:35px;top:10px;width:34px;height:34px;background:#0c0a0e}
+/* joystick: an upright face standing on the deck (deck point y≈27 → rig y 290.6, z 142.8) */
+.joy{left:41px;top:240px;width:22px;height:51px;transform:translateZ(143px);pointer-events:none}
+.shaft{position:absolute;left:9px;top:18px;bottom:0;width:4px;display:block;background:linear-gradient(90deg,#555,#ddd,#444)}
+.ball{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;display:block;
+  background:radial-gradient(circle at 35% 30%,#ff9a8a,#e3262a 45%,#7d0d12);box-shadow:0 2px 3px rgba(0,0,0,.5)}
+.bt{position:absolute;width:20px;height:20px;border-radius:50%;display:block;
+  background:radial-gradient(circle at 40% 35%,#ff7d74,#d81f24 55%,#6e0b0f);
+  box-shadow:0 0 0 3px #0c0a0e,0 0 0 5px color-mix(in srgb,var(--a) 70%,#000)}
+.cab.on .bt{box-shadow:0 0 0 3px #0c0a0e,0 0 0 5px var(--a),0 0 12px var(--a)}
+.bt.st{width:10px;height:10px;background:radial-gradient(circle at 40% 35%,#fff,#bbb 60%,#666);box-shadow:0 0 0 2px #0c0a0e}
+.deck .lb{position:absolute;font-family:var(--pixel);font-size:5px;letter-spacing:.1em;color:#7a7380}
+.cab.off .bt{filter:saturate(.25) brightness(.6)}
+.cab.off .ball{filter:saturate(.25) brightness(.6)}
+.deck-front .push{position:absolute;left:0;right:0;top:16px;text-align:center;font-family:var(--pixel);font-size:7px;letter-spacing:.24em;color:#3a3540}
+.cab.on .deck-front .push{color:var(--amber);text-shadow:0 0 6px var(--amber)}
+
+/* base: number art, coin door, kick plate */
+.num{position:absolute;left:14px;top:10px;font-family:var(--display);font-stretch:125%;font-weight:900;font-size:58px;line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--a) 70%,#000)}
+.cab.on .num{-webkit-text-stroke-color:var(--a);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--a) 60%,transparent))}
+.title-v{position:absolute;right:12px;top:14px;font-family:var(--pixel);font-size:7px;letter-spacing:.2em;color:color-mix(in srgb,var(--b) 60%,#000);
+  writing-mode:vertical-rl}
+.door{position:absolute;left:50%;top:86px;width:96px;height:74px;margin-left:-48px;display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px;
+  background:linear-gradient(#2c2933,#16141a);border:2px solid #3b3742;border-radius:3px;box-shadow:inset 0 0 0 4px #1d1b22}
+.slot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.slot i{display:block;width:5px;height:22px;background:#000;border:2px solid #4a3a20;border-radius:2px}
+.cab.on .slot i{background:#2a1a05;box-shadow:0 0 calc(12px * var(--lit)) rgba(255,181,71,.9),inset 0 0 4px var(--amber);border-color:#a97a2a}
+.slot b{font-family:var(--pixel);font-weight:400;font-size:6px;color:#5a4a30}
+.cab.on .slot b{color:var(--amber)}
+.ret{position:absolute;left:50%;bottom:9px;width:22px;height:6px;margin-left:-11px;background:#0a090c;border:1px solid #3b3742}
+.kick{position:absolute;left:0;right:0;bottom:0;height:34px;display:block;
+  background:linear-gradient(var(--a) 0 2px,#09080b 2px),#09080b}
+.cab-label{margin-top:26px;color:var(--dim);position:relative;z-index:2}
 .cab.on .cab-label{color:var(--ink)}
-.cab.on .cab-label > span + span{background:var(--neon);color:#16070e;border-color:var(--neon)}
+.cab.on .cab-label > span + span{background:var(--a);color:#16070e;border-color:var(--a)}
 /* ---- horizontal hall: vertical scroll drives a sideways walk ---- */
 .arcade{position:relative;margin:0 -5vw}          /* full-bleed past .room padding */
 .arcade-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
@@ -302,7 +350,7 @@ body.awake .hero{opacity:1;transform:none}
   padding:60px 0 40px;will-change:transform;
 }
 .track::after{ /* floor line + reflection that runs the whole hall */
-  content:'';position:absolute;left:0;right:0;bottom:calc(50% - 300px);height:1px;
+  content:'';position:absolute;left:0;right:0;bottom:calc(50% - 290px);height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,90,165,.25) 15%,rgba(94,242,214,.2) 85%,transparent);
   box-shadow:0 0 30px rgba(255,90,165,.2);opacity:var(--lit);
 }
@@ -334,8 +382,9 @@ body.awake .hero{opacity:1;transform:none}
 }
 .hall-meter i{display:block;width:140px;height:4px;background:#1f1c19}
 .hall-meter b{display:block;height:100%;width:0;background:var(--neon);box-shadow:0 0 8px var(--neon)}
-@media (max-height:720px){ .bay > .cab{transform:scale(.82)} .bay > .cab.ready:hover{transform:scale(.82) translateY(-6px)} }
-@media (max-height:600px){ .bay > .cab{transform:scale(.68)} .bay > .cab.ready:hover{transform:scale(.68) translateY(-6px)} }
+@media (max-height:820px){ .bay > .cab{transform:scale(.86)} }
+@media (max-height:720px){ .bay > .cab{transform:scale(.74)} }
+@media (max-height:600px){ .bay > .cab{transform:scale(.6)} }
 @media (max-width:760px){
   .bay{width:86vw}
   .bay-text{width:86vw;padding:0 7vw}
@@ -349,11 +398,11 @@ body.awake .hero{opacity:1;transform:none}
   animation:grain .4s steps(4) infinite;
 }
 .tape{
-  position:absolute;z-index:2;width:140%;left:-20%;top:42%;transform:rotate(-12deg);
-  background:repeating-linear-gradient(45deg,#e8c23a 0 14px,#16130f 14px 28px);
+  position:absolute;z-index:2;width:150%;left:-25%;top:40%;transform:rotate(-12deg);display:block;
+  background:repeating-linear-gradient(45deg,#e8c23a 0 12px,#16130f 12px 24px);
   padding:3px 0;opacity:calc(.25 + var(--lit) * .75);
 }
-.tape span{display:block;background:#e8c23a;color:#16130f;font-family:var(--pixel);font-size:11px;letter-spacing:.2em;padding:3px 0}
+.tape span{display:block;background:#e8c23a;color:#16130f;font-family:var(--pixel);font-size:9px;letter-spacing:.2em;padding:3px 0}
 
 footer{
   font-family:var(--mono);
@@ -583,42 +632,13 @@ footer a:hover{border-color:var(--neon)}
             <span class="walk" aria-hidden="true">SCROLL <b>▸▸▸</b></span>
           </div>
         <div class="bay">
-      <!-- WHO AM I -->
-      <button class="cab" id="cab-who" data-machine="who" disabled aria-label="Who am I — open machine">
-        <span class="marquee">WHO AM I</span>
-        <span class="shell">
-          <span class="screen">
-            <span class="boot" hidden><span>BOOTING</span><span class="boot-bar"></span></span>
-            <span class="attract" hidden>
-              <canvas width="16" height="18"></canvas>
-              <span class="t">SELECT PLAYER</span>
-              <span class="p">PRESS START</span>
-            </span>
-          </span>
-        </span>
-        <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
-        <span class="base"></span>
-        <span class="cab-label chip"><span>Who am I</span><span>01</span></span>
-      </button>
+          <button class="cab" id="cab-who" data-cab="who" disabled aria-label="Who am I — open machine"></button>
         </div>
         <div class="bay">
-      <!-- placeholders for future machines -->
-      <div class="cab off" aria-label="High scores — coming soon">
-        <span class="marquee">HIGH SCORES</span>
-        <span class="shell"><span class="screen"><span class="tape"><span>OUT OF ORDER</span></span></span></span>
-        <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
-        <span class="base"></span>
-        <span class="cab-label chip"><span>Coming soon</span><span>02</span></span>
-      </div>
+          <div class="cab off" data-cab="scores" aria-label="High scores — coming soon"></div>
         </div>
         <div class="bay">
-      <div class="cab off" aria-label="Continue — coming soon">
-        <span class="marquee">CONTINUE?</span>
-        <span class="shell"><span class="screen"><span class="tape"><span>OUT OF ORDER</span></span></span></span>
-        <span class="panel"><i class="stick"></i><span class="btns"><i></i><i></i><i></i></span></span>
-        <span class="base"></span>
-        <span class="cab-label chip"><span>Coming soon</span><span>03</span></span>
-      </div>
+          <div class="cab off" data-cab="cont" aria-label="Continue — coming soon"></div>
         </div>
           <div class="bay bay-text bay-end">
             <p class="kicker">BEING WIRED UP</p>
@@ -872,6 +892,88 @@ muteBtn.addEventListener('click', () => {
 });
 renderMute();
 
+function rng(seed){ return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+/* ============================================================
+   CABINETS — original 3D cabinets built from one template
+   ============================================================ */
+const MACHINES = {
+  who:    { title:'Who am I',    sub:'CHARACTER SELECT', n:'01', a:'#ff5aa5', b:'#5ef2d6', body:'#1d0c27', body2:'#0b0710' },
+  scores: { title:'High scores', sub:'TOP PLAYERS',      n:'02', a:'#ffb547', b:'#9b7bff', body:'#10122a', body2:'#07080f' },
+  cont:   { title:'Continue?',   sub:'PLAYER 2 START',   n:'03', a:'#5ef2d6', b:'#ff5aa5', body:'#07221d', body2:'#040b0a' },
+};
+/* side profile in side-face coordinates (x = 165 - depth) */
+const SIDE = '165,0 35,0 30,8 30,72 65,92 47,280 0,300 0,345 33,352 33,560 165,560';
+function sideArt(id, m){
+  const R = rng(id.length * 7919 + m.title.length * 31);
+  let stars = '';
+  for (let i = 0; i < 22; i++) {
+    const x = 40 + R() * 120, y = 20 + R() * 300, s = R() < .3 ? 3 : 2;
+    stars += `<g style="fill:${R() < .5 ? 'var(--b)' : '#efe6d2'}" opacity="${.35 + R() * .5}"><rect x="${x - s}" y="${y}" width="${s * 3}" height="${s}"/><rect x="${x}" y="${y - s}" width="${s}" height="${s * 3}"/></g>`;
+  }
+  return `<svg viewBox="0 0 165 560" width="165" height="560" aria-hidden="true">
+    <defs>
+      <clipPath id="clip-${id}"><polygon points="${SIDE}"/></clipPath>
+      <linearGradient id="bg-${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--body2)"/><stop offset=".55" style="stop-color:var(--body)"/><stop offset="1" style="stop-color:var(--body2)"/>
+      </linearGradient>
+      <pattern id="chk-${id}" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="8" height="8" style="fill:var(--a)" opacity=".35"/><rect x="8" y="8" width="8" height="8" style="fill:var(--a)" opacity=".35"/></pattern>
+    </defs>
+    <g clip-path="url(#clip-${id})">
+      <rect width="165" height="560" fill="url(#bg-${id})"/>
+      <circle cx="112" cy="150" r="30" style="fill:var(--b)" opacity=".22"/>
+      <circle cx="104" cy="142" r="30" style="fill:var(--body2)" opacity=".6"/>
+      <ellipse cx="112" cy="150" rx="52" ry="11" transform="rotate(-18 112 150)" fill="none" style="stroke:var(--a)" stroke-width="2.5" opacity=".7"/>
+      ${stars}
+      <g transform="rotate(-24 82 360)">
+        <rect x="-120" y="330" width="420" height="20" style="fill:var(--a)"/>
+        <rect x="-120" y="356" width="420" height="10" style="fill:var(--b)"/>
+        <rect x="-120" y="372" width="420" height="5" fill="#ffb547"/>
+      </g>
+      <rect x="0" y="470" width="165" height="56" fill="url(#chk-${id})"/>
+      <text transform="translate(150 462) rotate(-90)" style="font-family:Archivo,sans-serif;font-stretch:125%;font-weight:900;font-size:30px;text-transform:uppercase;fill:none;stroke:var(--a);stroke-width:1.4">${m.title.toUpperCase()}</text>
+      <text transform="translate(150 462) rotate(-90)" dx="2" dy="2" style="font-family:Archivo,sans-serif;font-stretch:125%;font-weight:900;font-size:30px;text-transform:uppercase;fill:var(--body2);opacity:.0">.</text>
+      <rect x="0" y="526" width="165" height="34" fill="#09080b"/>
+      <rect x="0" y="526" width="165" height="2" style="fill:var(--a)"/>
+    </g>
+    <polygon points="${SIDE}" fill="none" style="stroke:var(--tm)" stroke-width="5" stroke-linejoin="round"/>
+  </svg>`;
+}
+function cabinetHTML(id, off){
+  const m = MACHINES[id];
+  const screen = off
+    ? `<span class="tape"><span>OUT OF ORDER</span></span>`
+    : `<span class="boot" hidden><span>BOOTING</span><span class="boot-bar"></span></span>
+       <span class="attract" hidden><canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span></span>`;
+  return `<span class="scene"><span class="rig">
+      <span class="fc top"></span>
+      <span class="fc side">${sideArt(id, m)}</span>
+      <span class="fc marquee"><span class="mq"><span class="mq-logo">${m.title}</span><span class="mq-sub">${m.sub}</span></span></span>
+      <span class="fc grille"></span>
+      <span class="fc bezel"><span class="screen">${screen}</span><span class="bz-label"><span>1 PLAYER</span><span>2 PLAYERS</span></span></span>
+      <span class="fc deck">
+        <span class="ring base-ring"></span>
+        <span class="bt st" style="left:104px;top:8px"></span><span class="lb" style="left:98px;top:20px">START</span>
+        <span class="bt" style="left:142px;top:16px"></span><span class="lb" style="left:149px;top:41px">A</span>
+        <span class="bt" style="left:184px;top:12px"></span><span class="lb" style="left:191px;top:37px">B</span>
+      </span>
+      <span class="fc joy"><span class="shaft"></span><span class="ball"></span></span>
+      <span class="fc deck-front"><span class="push">PUSH 1P START</span></span>
+      <span class="fc deck-under"></span>
+      <span class="fc base">
+        <span class="num">${m.n}</span><span class="title-v">VELARDE ARCADE</span>
+        <span class="door"><span class="slot"><i></i><b>25¢</b></span><span class="slot"><i></i><b>25¢</b></span><span class="ret"></span></span>
+        <span class="kick"></span>
+      </span>
+    </span></span>
+    <span class="cab-label chip"><span>${off ? 'Coming soon' : m.title}</span><span>${m.n}</span></span>`;
+}
+document.querySelectorAll('[data-cab]').forEach(el => {
+  const id = el.dataset.cab, m = MACHINES[id], off = el.classList.contains('off');
+  if (!off) Object.entries({ '--a':m.a, '--b':m.b, '--body':m.body, '--body2':m.body2 }).forEach(([k, v]) => el.style.setProperty(k, v));
+  el.innerHTML = cabinetHTML(id, off);
+});
+
 /* ============================================================
    AVATAR
    ============================================================ */
@@ -934,7 +1036,6 @@ function ambientFlicker(){
    ============================================================ */
 const wall = $('#wall');
 let wallW = 0, wallDrawn = '';
-function rng(seed){ return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
 function drawWall(cssW){
   const cssH = Math.max(window.innerHeight, 500);
