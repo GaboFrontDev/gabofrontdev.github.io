@@ -390,6 +390,72 @@ body.awake .hero{opacity:1;transform:none}
   .bay-text{width:86vw;padding:0 7vw}
 }
 
+/* ---- Continue? machine + lobby ---- */
+.cnt-num{font-family:var(--display);font-stretch:62%;font-weight:900;font-size:58px;line-height:.9;color:#fff;
+  text-shadow:0 0 14px var(--neon2)}
+.cab.on .cnt-num{animation:cntPop 1s steps(1) infinite}
+@keyframes cntPop{0%{transform:scale(1.15)}20%{transform:scale(1)}}
+#match{position:fixed;inset:0;z-index:71;overflow:auto;padding:16px;background:rgba(3,6,6,.9);display:grid;place-items:center}
+.mt-back{background:none;border:1px solid rgba(94,242,214,.5);cursor:pointer;color:var(--neon2);font-family:var(--pixel);font-size:11px;letter-spacing:.14em;padding:6px 10px}
+.mt-versus{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(12px,3vw,32px);align-items:stretch}
+.mt-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 16px 18px;text-align:center;
+  border:2px solid rgba(94,242,214,.45);background:radial-gradient(circle at 50% 30%,rgba(94,242,214,.12),transparent 70%)}
+.mt-card.p1{border-color:var(--neon);background:radial-gradient(circle at 50% 30%,rgba(255,90,165,.16),transparent 70%)}
+.mt-tag{position:absolute;top:-11px;left:12px;background:var(--neon2);color:#03100c;font-family:var(--pixel);font-size:11px;line-height:1.5;padding:1px 8px;text-shadow:none}
+.mt-card.p1 .mt-tag{background:var(--neon);color:#16070e}
+.mt-ava{width:96px;height:108px;image-rendering:pixelated}
+.mt-ghost{width:96px;height:108px;display:grid;place-items:center;font-family:var(--pixel);font-size:54px;color:rgba(94,242,214,.5);
+  border:2px dashed rgba(94,242,214,.35);animation:blink 1.2s steps(1) infinite}
+.mt-name{font-family:var(--display);font-stretch:62%;font-weight:900;font-size:clamp(26px,3.4vw,38px);line-height:.9;color:#fff;letter-spacing:-.01em}
+.mt-role{font-family:var(--pixel);font-size:9px;letter-spacing:.16em;color:var(--neon2)}
+.mt-state{font-family:var(--pixel);font-size:10px;letter-spacing:.16em;color:var(--dim)}
+.mt-state.ready{color:#b6f25e;text-shadow:0 0 8px rgba(182,242,94,.6)}
+.mt-vs{align-self:center;font-family:var(--display);font-stretch:125%;font-weight:900;font-size:clamp(28px,4vw,48px);color:var(--amber);
+  text-shadow:0 0 18px rgba(255,181,71,.5);display:flex;flex-direction:column;align-items:center;line-height:1}
+.mt-vs small{font-family:var(--pixel);font-size:9px;letter-spacing:.2em;color:var(--dim);margin-top:6px;text-shadow:none}
+.mt-card.joined{border-color:#b6f25e;box-shadow:0 0 30px rgba(182,242,94,.25)}
+.mt-card.joined .mt-ghost{animation:none;border-style:solid;border-color:#b6f25e;color:#b6f25e;font-size:40px}
+.dots::after{content:'';animation:dots 1.4s steps(4) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+.mt-grid{display:grid;grid-template-columns:minmax(220px,1fr) 1.3fr;gap:clamp(14px,3vw,30px);margin-top:26px}
+.mt-settings{list-style:none;margin:0;padding:0;border-top:1px dashed rgba(94,242,214,.3)}
+.mt-settings li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(94,242,214,.3)}
+.mt-settings span{font-family:var(--pixel);font-size:9px;letter-spacing:.16em;color:var(--dim);padding-top:3px}
+.mt-settings b{font-family:var(--text);font-weight:600;font-size:14px;color:#d8fff3;text-align:right}
+.mt-log{list-style:none;margin:0;padding:12px 14px;min-height:150px;background:rgba(0,0,0,.35);border:1px solid rgba(94,242,214,.25);
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#9fd6c8;overflow:hidden}
+.mt-log li b{font-weight:600;color:var(--amber)}
+.mt-log li.sys{color:var(--dim)}
+.mt-log li.p1 b{color:var(--neon)}
+.mt-cta{display:flex;flex-direction:column;align-items:center;margin-top:26px}
+.mt-continue{font-family:var(--display);font-stretch:62%;font-weight:900;font-size:clamp(30px,4.4vw,52px);line-height:1;color:#fff;letter-spacing:-.01em}
+.mt-continue b{display:inline-block;min-width:1.2em;color:var(--neon);text-shadow:0 0 18px rgba(255,90,165,.6)}
+.mt-cta .press{margin-top:16px}
+.mt-note{margin:14px 0 0;font-size:14px;color:#9fd6c8;text-align:center;max-width:460px}
+.mt-cal{margin-top:6px;height:min(68vh,680px);min-height:420px;border:1px solid rgba(94,242,214,.35);background:#0b1512;position:relative}
+#mt-slot{z-index:4}
+body.cal-open .vignette,body.cal-open .grain{opacity:0;transition:opacity .3s}  /* calendar sits above the CRT scanlines so it stays readable */
+.mt-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.mt-frame .calendly-inline-widget,.mt-frame iframe{width:100%!important;height:100%!important;min-width:0!important}
+.mt-alt{margin:12px 0 0;text-align:center;font-size:13px;color:#9fd6c8}
+.mt-alt a{color:var(--amber);text-underline-offset:3px}
+.mt-loading{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;text-align:center;padding:20px;background:#0b1512;margin:0;font-family:var(--pixel);font-size:11px;letter-spacing:.18em;color:var(--neon2)}
+.mt-joined{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 0 10px}
+.mt-big{margin:6px 0 22px;font-family:var(--display);font-stretch:62%;font-weight:900;font-size:clamp(60px,9vw,120px);line-height:.85;text-transform:uppercase;color:#fff}
+.mt-big em{display:block;font-style:normal;font-stretch:125%;font-weight:800;font-size:.45em;color:#b6f25e;text-shadow:0 0 24px rgba(182,242,94,.5)}
+.mt-bar{border-color:rgba(182,242,94,.6)}
+.mt-bar i{width:14px;height:16px;background:rgba(182,242,94,.08)}
+.mt-bar i.on{background:#b6f25e;box-shadow:0 0 8px #b6f25e}
+.story-head h2 em{font-style:normal;font-stretch:125%;font-weight:800;color:var(--neon2)}
+@media (max-width:760px){
+  .mt-versus{grid-template-columns:1fr 1fr}
+  .mt-vs{display:none}
+  .mt-ava,.mt-ghost{width:64px;height:72px}
+  .mt-ghost{font-size:36px}
+  .mt-grid{grid-template-columns:1fr}
+  .mt-log{min-height:120px;font-size:12px}
+}
+
 /* ---- bonus machine + Snake ---- */
 .bonus-hint{margin:22px 0 0;font-family:var(--pixel);font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
 .bonus-hint b{font-weight:400;color:#b6f25e;display:inline-block;animation:walk 1.2s steps(3) infinite}
@@ -697,7 +763,7 @@ footer a:hover{border-color:var(--neon)}
           <div class="cab off" data-cab="scores" aria-label="High scores — coming soon"></div>
         </div>
         <div class="bay">
-          <div class="cab off" data-cab="cont" aria-label="Continue — coming soon"></div>
+          <button class="cab" id="cab-cont" data-cab="cont" disabled aria-label="Continue — player 2, start a match with me"></button>
         </div>
           <div class="bay bay-text bay-end">
             <p class="kicker">BEING WIRED UP</p>
@@ -727,6 +793,74 @@ footer a:hover{border-color:var(--neon)}
     </footer>
   </div>
 </main>
+
+<!-- ======================= CONTINUE? — MULTIPLAYER LOBBY ======================= -->
+<div id="match" hidden role="dialog" aria-modal="true" aria-label="Continue: start a match">
+  <div class="crt">
+    <div class="crt-inner">
+      <div class="hud">
+        <span class="credit">ONLINE · 1/2</span>
+        <span id="mtTitle">MATCH LOBBY</span>
+        <button class="mt-back" id="mtBack" aria-label="Back to the hall">ESC ✕</button>
+      </div>
+
+      <!-- Lobby -->
+      <section class="view" id="mt-lobby">
+        <div class="mt-versus">
+          <div class="mt-card p1">
+            <span class="mt-tag">P1</span>
+            <canvas class="mt-ava" width="16" height="18" role="img" aria-label="Gabriel's avatar"></canvas>
+            <b class="mt-name">GABRIEL VELARDE</b>
+            <span class="mt-role">SOFTWARE ENGINEER · HOST</span>
+            <span class="mt-state ready">● READY</span>
+          </div>
+          <div class="mt-vs" aria-hidden="true">VS<small>CO-OP</small></div>
+          <div class="mt-card p2" id="mtP2">
+            <span class="mt-tag">P2</span>
+            <span class="mt-ghost" aria-hidden="true">?</span>
+            <b class="mt-name" id="mtP2Name">PLAYER 2</b>
+            <span class="mt-role" id="mtP2Role">SEARCHING<span class="dots"></span></span>
+            <span class="mt-state" id="mtP2State">○ NOT JOINED</span>
+          </div>
+        </div>
+
+        <div class="mt-grid">
+          <ul class="mt-settings">
+            <li><span>MODE</span><b>1:1 · Co-op</b></li>
+            <li><span>MAP</span><b>Your project</b></li>
+            <li><span>ROUND</span><b>30 min video call</b></li>
+            <li><span>REGION</span><b>Remote · LATAM / US</b></li>
+          </ul>
+          <ol class="mt-log" id="mtLog" aria-live="polite"></ol>
+        </div>
+
+        <div class="mt-cta">
+          <div class="mt-continue" aria-hidden="true">CONTINUE? <b id="mtCount">10</b></div>
+          <button class="press" id="mtStart">▶ PLAYER 2 · PRESS START</button>
+          <p class="mt-note">Pick a time on my calendar. Booking it is how you join the match.</p>
+        </div>
+      </section>
+
+      <!-- Pick a slot -->
+      <section class="view" id="mt-slot" hidden>
+        <div class="story-head"><h2>Pick your <em>slot</em></h2><p>ESC BACK TO LOBBY</p></div>
+        <div class="mt-cal" id="mtCal"></div>
+        <p class="mt-alt">Calendar not loading? <a id="mtAlt" href="#" target="_blank" rel="noopener">Open it in a new tab ↗</a></p>
+      </section>
+
+      <!-- Joined -->
+      <section class="view" id="mt-joined" hidden>
+        <div class="mt-joined">
+          <p class="kicker">PLAYER 2 HAS JOINED</p>
+          <h2 class="mt-big">Match <em>starting</em></h2>
+          <div class="boot-bar mt-bar" id="mtBar"></div>
+          <p class="mt-note">You're in. The invite with the call link is on its way to your inbox — see you there.</p>
+          <button class="press" id="mtDone">◀ BACK TO THE HALL</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 
 <!-- ======================= BONUS — SNAKE ======================= -->
 <div id="snake" hidden role="dialog" aria-modal="true" aria-label="Bonus stage: Snake">
@@ -1040,6 +1174,8 @@ function cabinetHTML(id, off){
     : `<span class="boot" hidden><span>BOOTING</span><span class="boot-bar"></span></span>
        <span class="attract" hidden>${id === 'snake'
           ? '<canvas class="lcd-mini"></canvas><span class="p">PRESS START</span>'
+          : id === 'cont'
+          ? '<span class="t">CONTINUE?</span><span class="cnt-num">9</span><span class="p">PLAYER 2 PRESS START</span>'
           : '<canvas width="16" height="18"></canvas><span class="t">SELECT PLAYER</span><span class="p">PRESS START</span>'}</span>`;
   return `<span class="scene"><span class="rig">
       <span class="fc top"></span>
@@ -1359,6 +1495,8 @@ async function enter(){
   // only working machines boot; the rest stay out of order
   document.querySelectorAll('.cab.off').forEach(c => c.classList.add('on-dim'));
   await bootCabinet(cabWho);
+  await bootCabinet(cabCont, 12);
+  startContDemo();
   await bootCabinet(cabSnake, 10);
   startSnakeDemo();
   ambientFlicker();
@@ -1533,6 +1671,153 @@ function SnakeGame(cv){
 }
 
 /* the cabinet's attract screen plays itself */
+/* ============================================================
+   CONTINUE? — multiplayer-style lobby that books a call
+   ============================================================ */
+/* Paste your Calendly event link here, e.g. 'https://calendly.com/your-name/30min' */
+const CALENDLY_URL = 'https://calendly.com/soygabrielhinojoza/30min';
+
+const cabCont = $('#cab-cont');
+if (CALENDLY_URL) $('#mtAlt').href = CALENDLY_URL;
+let contT = 0;
+function startContDemo(){
+  const el = $('.cnt-num', cabCont); if (!el) return;
+  let n = 9; clearInterval(contT);
+  contT = setInterval(() => { n = n <= 0 ? 9 : n - 1; el.textContent = n; }, 1000);
+}
+
+const matchEl = $('#match');
+let mOpen = false, mView = 'lobby', mCountT = 0, mLogT = [], mJoined = false;
+drawAvatar($('.mt-ava'));
+function mShow(v){
+  mView = v;
+  ['lobby', 'slot', 'joined'].forEach(k => $('#mt-' + k).hidden = k !== v);
+  $('#mtTitle').textContent = { lobby:'MATCH LOBBY', slot:'MATCHMAKING', joined:'MATCH FOUND' }[v];
+  document.body.classList.toggle('cal-open', v === 'slot');
+  if (v === 'lobby') { mCountdown(); $('#mtStart').focus(); } else clearInterval(mCountT);
+}
+function mCountdown(){
+  let n = 10; const el = $('#mtCount');
+  el.textContent = n; clearInterval(mCountT);
+  mCountT = setInterval(() => {
+    n = n <= 0 ? 10 : n - 1;
+    el.textContent = n;
+    if (n > 0) tone(n % 2 ? 660 : 620, 'square', now(), 0.05, 0.03); else sfx.blip();
+  }, 1000);
+}
+function mLog(){
+  mLogT.forEach(clearTimeout); mLogT = [];
+  const log = $('#mtLog'); log.innerHTML = '';
+  const lines = [
+    ['sys', 'server: lobby created'],
+    ['p1',  '<b>P1</b> joined · host'],
+    ['p1',  '<b>P1:</b> looking for player 2 to build something with'],
+    ['p1',  '<b>P1:</b> frontend, full-stack, AI, security — pick your map'],
+    ['sys', 'server: waiting for player 2…'],
+  ];
+  lines.forEach(([cls, html], i) => mLogT.push(setTimeout(() => {
+    const li = document.createElement('li'); li.className = cls; li.innerHTML = '&gt; ' + html; log.append(li);
+    sfx.type();
+  }, 350 + i * (RM ? 100 : 650))));
+}
+function mSetJoined(on){
+  mJoined = on;
+  $('#mtP2').classList.toggle('joined', on);
+  $('.mt-ghost', $('#mtP2')).textContent = on ? '✓' : '?';
+  $('#mtP2Name').textContent = on ? 'YOU' : 'PLAYER 2';
+  $('#mtP2Role').innerHTML = on ? 'CO-OP PARTNER' : 'SEARCHING<span class="dots"></span>';
+  $('#mtP2State').textContent = on ? '● READY' : '○ NOT JOINED';
+  $('#mtP2State').classList.toggle('ready', on);
+  $('.credit', matchEl).textContent = on ? 'ONLINE · 2/2' : 'ONLINE · 1/2';
+}
+function openMatch(){
+  mOpen = true; matchEl.hidden = false; document.body.style.overflow = 'hidden';
+  const inner = $('.crt-inner', matchEl); inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = '';
+  sfx.start(); mSetJoined(mJoined); mShow(mJoined ? 'joined' : 'lobby'); if (!mJoined) mLog(); else mJoinedBar();
+}
+function closeMatch(){
+  mOpen = false; clearInterval(mCountT); mLogT.forEach(clearTimeout); document.body.classList.remove('cal-open');
+  matchEl.hidden = true; document.body.style.overflow = ''; sfx.back(); cabCont.focus();
+}
+
+/* Calendly: embedded straight as an iframe — no extra script to load or get blocked.
+   embed_domain + embed_type make Calendly post 'calendly.event_scheduled' back to this page. */
+function calUrl(){
+  const u = new URL(CALENDLY_URL);
+  u.searchParams.set('embed_domain', location.hostname || 'localhost');
+  u.searchParams.set('embed_type', 'Inline');
+  u.searchParams.set('hide_gdpr_banner', '1');
+  u.searchParams.set('background_color', '0b1512');
+  u.searchParams.set('text_color', 'd8fff3');
+  u.searchParams.set('primary_color', '5ef2d6');
+  return u.toString();
+}
+/* Hybrid: try Calendly's own widget script first; if it's blocked or slow, embed the iframe directly.
+   Either way Calendly posts 'calendly.event_scheduled' back to this page. */
+let calScript = null;
+function loadCalendly(timeoutMs = 2500){
+  if (window.Calendly && window.Calendly.initInlineWidget) return Promise.resolve(true);
+  if (!calScript) {
+    calScript = new Promise(res => {
+      const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://assets.calendly.com/assets/external/widget.css';
+      const js = document.createElement('script'); js.src = 'https://assets.calendly.com/assets/external/widget.js'; js.async = true;
+      js.onload = () => res(!!(window.Calendly && window.Calendly.initInlineWidget));
+      js.onerror = () => { calScript = null; res(false); };
+      document.head.append(css, js);
+    });
+  }
+  return Promise.race([calScript, new Promise(res => setTimeout(() => res(false), timeoutMs))]);
+}
+function calIframe(box){
+  const fr = document.createElement('iframe');
+  fr.className = 'mt-frame';
+  fr.title = 'Pick a time on Gabriel\'s calendar';
+  fr.src = calUrl();
+  fr.addEventListener('load', () => { const l = $('.mt-loading', box); if (l) l.remove(); });
+  box.append(fr);
+}
+let calTry = 0;
+async function mPressStart(){
+  sfx.start();
+  mShow('slot');
+  const box = $('#mtCal'), attempt = ++calTry;
+  box.innerHTML = '<div class="mt-loading"><span>CONNECTING TO SERVER<span class="dots"></span></span></div>';
+  const ok = await loadCalendly();
+  if (attempt !== calTry || mView !== 'slot') return;      // user left or pressed again
+  if (ok) {
+    const host = document.createElement('div'); host.className = 'mt-frame';
+    box.append(host);
+    try {
+      window.Calendly.initInlineWidget({ url: calUrl(), parentElement: host });
+      setTimeout(() => { const l = $('.mt-loading', box); if (l) l.remove(); }, 1200);
+      return;
+    } catch (e) { host.remove(); }
+  }
+  calIframe(box);   // fallback
+}
+async function mJoinedBar(){
+  const bar = $('#mtBar'); bar.innerHTML = '<i></i>'.repeat(16);
+  for (let i = 0; i < 16; i++) { if (!mOpen) return; bar.children[i].classList.add('on'); sfx.click(i); await wait(70); }
+}
+/* Calendly tells the page when a meeting gets booked */
+window.addEventListener('message', e => {
+  if (typeof e.origin !== 'string' || !/^https:\/\/([a-z0-9-]+\.)*calendly\.com$/.test(e.origin)) return;
+  if (e.data && e.data.event === 'calendly.event_scheduled') {
+    mSetJoined(true);
+    if (mOpen) {
+      const t = now(); [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 'square', t + i * 0.09, i === 4 ? 0.4 : 0.08, 0.06));
+      mShow('joined'); mJoinedBar(); $('#mtDone').focus();
+    }
+  }
+});
+cabCont.addEventListener('click', openMatch);
+$('#mtBack').addEventListener('click', closeMatch);
+$('#mtStart').addEventListener('click', mPressStart);
+$('#mtDone').addEventListener('click', closeMatch);
+function matchKey(e){
+  if (e.key === 'Escape') { e.preventDefault(); if (mView === 'slot') { sfx.back(); mShow('lobby'); } else closeMatch(); }
+}
+
 const cabSnake = $('#cab-snake');
 let demoT = 0;
 function startSnakeDemo(){
@@ -1633,6 +1918,7 @@ document.addEventListener('keydown', e => {
   if (!started && (e.key === 'Enter' || e.key === ' ') && document.activeElement === document.body) {
     e.preventDefault(); enter(); return;
   }
+  if (mOpen) return matchKey(e);
   if (snOpen) return snKey(e);
   if (!gameOpen) return;
   if (e.key === 'Escape') {
