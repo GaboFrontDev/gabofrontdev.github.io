@@ -67,6 +67,14 @@ button{font:inherit;color:inherit}
 }
 
 /* ============================================================
+   BRICK WALL + GRAFFITI (drawn in JS, lit by the lamps)
+   ============================================================ */
+#wall{
+  position:fixed;top:0;left:0;height:100vh;height:100lvh;z-index:-2;pointer-events:none;
+  opacity:calc(.1 + var(--lit) * .9);transition:opacity .25s;will-change:transform;
+}
+
+/* ============================================================
    CEILING LAMPS
    ============================================================ */
 .ceiling{
@@ -200,6 +208,7 @@ body.awake .hero{opacity:1;transform:none}
 }
 .lede{max-width:600px;font-size:clamp(17px,1.5vw,20px);line-height:1.45;letter-spacing:-.01em;color:#cfc6b3;margin:30px 0 0}
 .lede b{color:var(--ink);font-weight:600}
+.lede,.bay-copy,.soon{text-shadow:0 1px 2px rgba(0,0,0,.9),0 0 18px rgba(0,0,0,.8)}
 
 /* ============================================================
    CABINETS
@@ -524,6 +533,7 @@ footer a:hover{border-color:var(--neon)}
 
 <div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
+<canvas id="wall" aria-hidden="true"></canvas>
 
 <button id="mute" aria-pressed="false" aria-label="Toggle sound"><span class="dot"></span><span class="lbl">SOUND ON</span></button>
 
@@ -920,13 +930,132 @@ function ambientFlicker(){
 }
 
 /* ============================================================
+   BRICK WALL + GRAFFITI — procedural, original pieces
+   ============================================================ */
+const wall = $('#wall');
+let wallW = 0, wallDrawn = '';
+function rng(seed){ return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+function drawWall(cssW){
+  const cssH = Math.max(window.innerHeight, 500);
+  const key = Math.round(cssW) + 'x' + Math.round(cssH) + (document.fonts && document.fonts.check('900 40px Archivo') ? 'f' : '');
+  if (key === wallDrawn) return;
+  wallDrawn = key;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  wall.width = Math.round(cssW * dpr); wall.height = Math.round(cssH * dpr);
+  wall.style.width = cssW + 'px'; wall.style.height = cssH + 'px';
+  const g = wall.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const R = rng(1983);
+
+  /* --- bricks --- */
+  const bh = 30, bw = 74, m = 4;
+  g.fillStyle = '#0d0b0a'; g.fillRect(0, 0, cssW, cssH);          // mortar
+  for (let row = 0, y = 0; y < cssH; row++, y += bh) {
+    const off = row % 2 ? -bw / 2 : 0;
+    for (let x = off; x < cssW; x += bw) {
+      const h = 6 + R() * 12, sat = 20 + R() * 16, lum = 11 + R() * 8 - (y / cssH) * 3;
+      g.fillStyle = `hsl(${h},${sat}%,${lum}%)`;
+      g.fillRect(x + m / 2, y + m / 2, bw - m, bh - m);
+      g.fillStyle = 'rgba(255,220,200,.05)';                       // top edge catch-light
+      g.fillRect(x + m / 2, y + m / 2, bw - m, 2);
+      g.fillStyle = 'rgba(0,0,0,.35)';                             // bottom edge shade
+      g.fillRect(x + m / 2, y + bh - m / 2 - 3, bw - m, 3);
+      for (let k = 0; k < 18; k++) {                               // pits and speckles
+        g.fillStyle = R() > .5 ? 'rgba(0,0,0,.28)' : 'rgba(255,230,210,.05)';
+        g.fillRect(x + m / 2 + R() * (bw - m - 2), y + m / 2 + R() * (bh - m - 2), 1 + R() * 2, 1 + R() * 2);
+      }
+      if (R() < .06) { g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + m / 2, y + m / 2, bw - m, bh - m); } // stained brick
+    }
+  }
+
+  /* --- graffiti: positions are in viewport widths so the first screen stays readable --- */
+  const vw = window.innerWidth, H = cssH;
+  const hasStretch = 'fontStretch' in g;
+  function spray(text, o){
+    g.save();
+    g.translate(o.x, o.y); g.rotate((o.rot || 0) * Math.PI / 180);
+    if (hasStretch) g.fontStretch = o.stretch || 'normal';
+    g.font = `${o.weight || 900} ${o.size}px ${o.font || 'Archivo, Arial Black, sans-serif'}`;
+    g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+    const w = g.measureText(text).width;
+    g.globalAlpha = o.alpha || .8;
+    // overspray haze
+    g.shadowColor = o.color; g.shadowBlur = o.size * .35;
+    g.fillStyle = o.color; g.fillText(text, 0, 0);
+    g.shadowBlur = 0;
+    // outline then fill
+    if (o.outline) { g.strokeStyle = o.outline; g.lineWidth = Math.max(4, o.size * .09); g.strokeText(text, 0, 0); }
+    g.fillStyle = o.color; g.fillText(text, 0, 0);
+    if (o.shine) { g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1.5; g.strokeText(text, -1.5, -1.5); }
+    // drips
+    g.strokeStyle = o.color; g.lineCap = 'round';
+    const drips = o.drips ?? 4;
+    for (let i = 0; i < drips; i++) {
+      const dx = R() * w, len = o.size * (.2 + R() * .8);
+      g.lineWidth = 1.5 + R() * 2.5;
+      g.beginPath(); g.moveTo(dx, -o.size * .05); g.lineTo(dx, len); g.stroke();
+      g.beginPath(); g.arc(dx, len, g.lineWidth * .9, 0, Math.PI * 2); g.fillStyle = o.color; g.fill();
+    }
+    g.restore();
+  }
+  function star(cx, cy, rad, color, rot=0, alpha=.7){
+    g.save(); g.translate(cx, cy); g.rotate(rot); g.globalAlpha = alpha;
+    g.shadowColor = color; g.shadowBlur = rad * .6; g.strokeStyle = color; g.lineWidth = rad * .18; g.lineJoin = 'round';
+    g.beginPath();
+    for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, rr = i % 2 ? rad * .45 : rad; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    g.closePath(); g.stroke(); g.restore();
+  }
+  function arrow(x, y, len, color, alpha=.65){
+    g.save(); g.globalAlpha = alpha; g.strokeStyle = color; g.lineWidth = 7; g.lineCap = 'round'; g.lineJoin = 'round';
+    g.shadowColor = color; g.shadowBlur = 14;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + len * .5, y - 26, x + len, y); g.stroke();
+    g.beginPath(); g.moveTo(x + len - 22, y - 18); g.lineTo(x + len, y); g.lineTo(x + len - 26, y + 10); g.stroke();
+    g.restore();
+  }
+  const PINK = '#ff5aa5', TEAL = '#5ef2d6', AMBER = '#ffb547', CREAM = '#efe6d2', VIOLET = '#9b7bff';
+
+  // screen 1 — keep the hero (left) clean: right side + bottom band only
+  spray('GAME ON', { x: vw * .68, y: H * .30, size: Math.max(34, Math.min(80, vw * .05)), color: PINK, outline: '#0b0a09', rot: -7, stretch: 'condensed', shine: true, alpha: .55 });
+  spray('1UP', { x: vw * .84, y: H * .58, size: Math.max(30, Math.min(60, vw * .045)), color: AMBER, outline: '#0b0a09', rot: 9, stretch: 'expanded', weight: 800, drips: 3, alpha: .5 });
+  star(vw * .94, H * .44, 24, TEAL, .3, .5);
+  spray('gv', { x: vw * .06, y: H * .92, size: 40, color: CREAM, font: 'Silkscreen, monospace', weight: 400, rot: -4, drips: 2, alpha: .35 });
+
+  // further along the hall: top and bottom bands only, the middle belongs to the machines
+  spray('P1', { x: vw * 1.16, y: H * .20, size: Math.min(110, H * .13), color: TEAL, outline: CREAM, rot: -10, stretch: 'condensed', shine: true, drips: 5, alpha: .45 });
+  spray('NO CHEATS', { x: vw * 1.22, y: H * .86, size: 44, color: CREAM, outline: '#0b0a09', rot: 3, stretch: 'condensed', drips: 3, alpha: .4 });
+  arrow(vw * 1.40, H * .17, 160, AMBER, .55);
+  spray('HI-SCORE', { x: vw * 1.55, y: H * .17, size: Math.min(70, H * .08), color: VIOLET, outline: '#0b0a09', rot: 6, stretch: 'expanded', weight: 800, shine: true, alpha: .5 });
+  star(vw * 1.80, H * .15, 30, PINK, -.2, .55);
+  spray('LVL UP', { x: vw * 1.92, y: H * .90, size: Math.min(80, H * .09), color: AMBER, outline: '#0b0a09', rot: -5, stretch: 'condensed', shine: true, alpha: .5 });
+  spray('KEEP PLAYING', { x: vw * 2.2, y: H * .16, size: 48, color: PINK, outline: '#0b0a09', rot: -3, stretch: 'condensed', drips: 3, alpha: .45 });
+  spray('★ 2026 ★', { x: vw * 2.45, y: H * .9, size: 56, color: TEAL, font: 'Silkscreen, monospace', weight: 400, rot: 8, drips: 2, alpha: .4 });
+
+  /* --- mortar back over the paint, plus grime, so it reads as painted brick --- */
+  g.globalAlpha = .45; g.fillStyle = '#0d0b0a';
+  for (let row = 0, y = 0; y < cssH; row++, y += bh) {
+    g.fillRect(0, y - m / 2, cssW, m);
+    const off = row % 2 ? -bw / 2 : 0;
+    for (let x = off; x < cssW; x += bw) g.fillRect(x - m / 2, y, m, bh);
+  }
+  g.globalAlpha = 1;
+  const grime = g.createLinearGradient(0, 0, 0, cssH);
+  grime.addColorStop(0, 'rgba(0,0,0,.55)'); grime.addColorStop(.35, 'rgba(0,0,0,.1)');
+  grime.addColorStop(.75, 'rgba(0,0,0,.25)'); grime.addColorStop(1, 'rgba(0,0,0,.75)');
+  g.fillStyle = grime; g.fillRect(0, 0, cssW, cssH);
+}
+
+/* ============================================================
    HORIZONTAL HALL — pin the machines and translate the track
    ============================================================ */
 const arcade = $('#arcade'), pin = $('#arcadePin'), track = $('#track'), meter = $('#meterFill');
 let travel = 0, ticking = false;
+const WALL_PARALLAX = 0.45;   // the wall drifts slower than the machines
 function layoutHall(){
   travel = Math.max(0, track.scrollWidth - pin.clientWidth);
   arcade.style.height = (pin.clientHeight + travel) + 'px';
+  wallW = Math.ceil(window.innerWidth + travel * WALL_PARALLAX + 40);
+  drawWall(Math.max(wallW, window.innerWidth * 2.6));
   updateHall();
 }
 function hallProgress(){
@@ -939,6 +1068,7 @@ function updateHall(){
   const p = hallProgress();
   track.style.transform = `translate3d(${-p * travel}px,0,0)`;
   meter.style.width = (p * 100) + '%';
+  wall.style.transform = `translate3d(${-p * travel * WALL_PARALLAX}px,0,0)`;
 }
 window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateHall); } }, { passive:true });
 window.addEventListener('resize', layoutHall);
