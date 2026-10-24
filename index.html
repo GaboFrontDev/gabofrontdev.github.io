@@ -70,7 +70,7 @@ button{font:inherit;color:inherit}
    BRICK WALL + GRAFFITI (drawn in JS, lit by the lamps)
    ============================================================ */
 #wall{
-  position:fixed;top:0;left:0;height:100vh;height:100lvh;z-index:-2;pointer-events:none;
+  position:fixed;top:0;left:0;z-index:-2;pointer-events:none;
   opacity:calc(.1 + var(--lit) * .9);transition:opacity .25s;will-change:transform;
 }
 
@@ -381,13 +381,33 @@ body.awake .hero{opacity:1;transform:none}
   font-family:var(--pixel);font-size:10px;letter-spacing:.2em;color:var(--dim);
 }
 .hall-meter i{display:block;width:140px;height:4px;background:#1f1c19}
-.hall-meter b{display:block;height:100%;width:0;background:var(--neon);box-shadow:0 0 8px var(--neon)}
+.hall-meter b{display:block;height:100%;background:var(--neon);box-shadow:0 0 8px var(--neon);will-change:transform}
 @media (max-height:820px){ .bay > .cab{transform:scale(.86)} }
 @media (max-height:720px){ .bay > .cab{transform:scale(.74)} }
 @media (max-height:600px){ .bay > .cab{transform:scale(.6)} }
 @media (max-width:760px){
   .bay{width:86vw}
   .bay-text{width:86vw;padding:0 7vw}
+}
+
+/* ---- performance: let the browser's compositor drive the hall when it can ---- */
+body{timeline-scope:--hall}
+.arcade{view-timeline:--hall block}
+.hall-meter b{width:100%;transform:scaleX(0);transform-origin:0 50%}
+@keyframes hallMove{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(var(--travel, 0) * -1px),0,0)}}
+@keyframes wallMove{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(var(--travel, 0) * var(--wall-k, .45) * -1px),0,0)}}
+@keyframes meterFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@supports (animation-timeline: view()){
+  html.sda .track{animation:hallMove linear both;animation-timeline:--hall;animation-range:contain 0% contain 100%}
+  html.sda .hall-meter b{animation:meterFill linear both;animation-timeline:--hall;animation-range:contain 0% contain 100%}
+  html.sda.sda-scope #wall{animation:wallMove linear both;animation-timeline:--hall;animation-range:contain 0% contain 100%}
+}
+/* phones: drop the effects that repaint every frame */
+@media (pointer:coarse), (max-width:760px){
+  .grain{animation:none;inset:0;opacity:.09}
+  .cab.off .screen::before{animation:none}
+  .mq-logo,.num{filter:none!important}
+  .cab.on .mq{animation:none}
 }
 
 /* out-of-order cabinets */
@@ -419,9 +439,9 @@ footer a:hover{border-color:var(--neon)}
    ============================================================ */
 #mute{
   position:fixed;right:18px;bottom:18px;z-index:95;cursor:pointer;
-  background:rgba(14,12,11,.85);border:1px solid #2e2925;border-radius:999px;
+  background:rgba(14,12,11,.94);border:1px solid #2e2925;border-radius:999px;
   padding:9px 14px;font-family:var(--pixel);font-size:11px;letter-spacing:.14em;color:var(--ink);
-  display:flex;align-items:center;gap:8px;backdrop-filter:blur(4px);
+  display:flex;align-items:center;gap:8px;
 }
 #mute .dot{width:8px;height:8px;border-radius:50%;background:var(--neon2);box-shadow:0 0 8px var(--neon2)}
 #mute[aria-pressed="true"] .dot{background:#5a524c;box-shadow:none}
@@ -1037,8 +1057,10 @@ function ambientFlicker(){
 const wall = $('#wall');
 let wallW = 0, wallDrawn = '';
 
+let wallMaxH = 0;
 function drawWall(cssW){
-  const cssH = Math.max(window.innerHeight, 500);
+  wallMaxH = Math.max(wallMaxH, window.innerHeight, (window.screen && screen.height) || 0, 500);
+  const cssH = wallMaxH;
   const key = Math.round(cssW) + 'x' + Math.round(cssH) + (document.fonts && document.fonts.check('900 40px Archivo') ? 'f' : '');
   if (key === wallDrawn) return;
   wallDrawn = key;
@@ -1152,27 +1174,58 @@ function drawWall(cssW){
 const arcade = $('#arcade'), pin = $('#arcadePin'), track = $('#track'), meter = $('#meterFill');
 let travel = 0, ticking = false;
 const WALL_PARALLAX = 0.45;   // the wall drifts slower than the machines
+/* halve the empty space between the hero text and the first panel of the hall */
+const GAP_KEEP = 0.5;
+function tightenGap(){
+  const lede = $('.lede'), kicker = $('.bay-text .kicker');
+  if (!lede || !kicker) return;
+  arcade.style.marginTop = '0px';
+  const ledeBottom = lede.getBoundingClientRect().bottom + window.scrollY;
+  const kickerInPin = kicker.getBoundingClientRect().top - pin.getBoundingClientRect().top;
+  const kickerTop = arcade.getBoundingClientRect().top + window.scrollY + kickerInPin;
+  const gap = kickerTop - ledeBottom;
+  arcade.style.marginTop = (-Math.max(0, gap * (1 - GAP_KEEP))) + 'px';
+}
 function layoutHall(){
+  tightenGap();
   travel = Math.max(0, track.scrollWidth - pin.clientWidth);
   arcade.style.height = (pin.clientHeight + travel) + 'px';
   wallW = Math.ceil(window.innerWidth + travel * WALL_PARALLAX + 40);
   drawWall(Math.max(wallW, window.innerWidth * 2.6));
+  document.documentElement.style.setProperty('--travel', travel);
+  document.documentElement.style.setProperty('--wall-k', WALL_PARALLAX);
+  cacheHall();
   updateHall();
 }
-function hallProgress(){
-  const span = arcade.offsetHeight - pin.clientHeight;
-  if (span <= 0) return 0;
-  return Math.min(1, Math.max(0, -arcade.getBoundingClientRect().top / span));
+/* Scroll-driven animations run on the compositor (no JS per frame).
+   Older browsers fall back to a rAF-throttled scroll handler. */
+const SDA = !!(window.CSS && CSS.supports('animation-timeline: view()') && CSS.supports('animation-range: contain 0% contain 100%'));
+const SDA_SCOPE = SDA && CSS.supports('timeline-scope: --hall');
+document.documentElement.classList.toggle('sda', SDA);
+document.documentElement.classList.toggle('sda-scope', SDA_SCOPE);
+let hallTop = 0, hallSpan = 1;
+function cacheHall(){
+  hallTop = arcade.getBoundingClientRect().top + window.scrollY;
+  hallSpan = Math.max(1, arcade.offsetHeight - pin.clientHeight);
 }
 function updateHall(){
   ticking = false;
-  const p = hallProgress();
-  track.style.transform = `translate3d(${-p * travel}px,0,0)`;
-  meter.style.width = (p * 100) + '%';
-  wall.style.transform = `translate3d(${-p * travel * WALL_PARALLAX}px,0,0)`;
+  const p = Math.min(1, Math.max(0, (window.scrollY - hallTop) / hallSpan));
+  if (!SDA) {
+    track.style.transform = `translate3d(${-p * travel}px,0,0)`;
+    meter.style.transform = `scaleX(${p})`;
+  }
+  if (!SDA_SCOPE) wall.style.transform = `translate3d(${-p * travel * WALL_PARALLAX}px,0,0)`;
 }
-window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateHall); } }, { passive:true });
-window.addEventListener('resize', layoutHall);
+if (!SDA_SCOPE) window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateHall); } }, { passive:true });
+/* ignore height-only resizes from the mobile address bar showing/hiding */
+let lastW = window.innerWidth, lastH = window.innerHeight, resizeT = 0;
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  if (w === lastW && Math.abs(h - lastH) < 160) return;
+  lastW = w; lastH = h;
+  clearTimeout(resizeT); resizeT = setTimeout(layoutHall, 120);
+});
 if (document.fonts) document.fonts.ready.then(layoutHall);
 layoutHall();
 /* keyboard users: tabbing to a machine scrolls the page to where it's in view */
